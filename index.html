@@ -1683,24 +1683,96 @@
             }
         });
 
-        // Load products from main system
-        function loadProducts() {
+        // Configuração do Supabase
+        const SUPABASE_CONFIG = {
+            url: 'https://zpqtcrfygjtjtacufgbv.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwcXRjcmZ5Z2p0anRhY3VmZ2J2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg3MDY3MDAsImV4cCI6MjA4NDI4MjcwMH0.7p_Dtv7HBcBR9Mg6mDApjAWzZC10CdsnNU41yoHPsyo'
+        };
+
+        // Função para buscar produtos do Supabase
+        async function fetchProductsFromSupabase() {
             try {
-                const savedProducts = localStorage.getItem('products');
-                if (savedProducts) {
-                    allProducts = JSON.parse(savedProducts);
-                    // Filter only active products (don't check stock quantity)
-                    allProducts = allProducts.filter(p => 
-                        p.is_active !== false
-                    );
+                const url = `${SUPABASE_CONFIG.url}/rest/v1/products?is_active=eq.true&order=created_at.desc`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_CONFIG.anonKey,
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}: ${await response.text()}`);
+                }
+
+                const supabaseProducts = await response.json();
+                
+                // Converter para formato esperado
+                return supabaseProducts.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    brand: p.brand,
+                    concentration: p.concentration,
+                    volume: p.volume,
+                    batch: p.batch,
+                    origin: p.origin,
+                    price: parseFloat(p.price),
+                    cost: p.cost ? parseFloat(p.cost) : null,
+                    stock: p.stock_quantity || 0,
+                    stock_quantity: p.stock_quantity || 0,
+                    image: p.image_url || p.image_base64 || null,
+                    image_url: p.image_url,
+                    image_base64: p.image_base64,
+                    is_active: p.is_active !== false,
+                    fragrance: p.fragrance || null
+                }));
+            } catch (error) {
+                console.error('Erro ao buscar produtos do Supabase:', error);
+                return null;
+            }
+        }
+
+        // Load products from Supabase (com fallback para localStorage)
+        async function loadProducts() {
+            try {
+                // Tentar carregar do Supabase primeiro
+                const supabaseProducts = await fetchProductsFromSupabase();
+                
+                if (supabaseProducts && supabaseProducts.length > 0) {
+                    allProducts = supabaseProducts;
                     filteredProducts = [...allProducts];
+                    console.log(`✅ ${allProducts.length} produtos carregados do Supabase`);
                     renderProducts();
                 } else {
-                    showEmptyProducts();
+                    // Fallback: tentar localStorage
+                    const savedProducts = localStorage.getItem('products');
+                    if (savedProducts) {
+                        allProducts = JSON.parse(savedProducts);
+                        allProducts = allProducts.filter(p => p.is_active !== false);
+                        filteredProducts = [...allProducts];
+                        console.log(`⚠️ ${allProducts.length} produtos carregados do localStorage (fallback)`);
+                        renderProducts();
+                    } else {
+                        showEmptyProducts();
+                    }
                 }
             } catch (e) {
                 console.error('Erro ao carregar produtos:', e);
-                showEmptyProducts();
+                // Último fallback: localStorage
+                try {
+                    const savedProducts = localStorage.getItem('products');
+                    if (savedProducts) {
+                        allProducts = JSON.parse(savedProducts);
+                        allProducts = allProducts.filter(p => p.is_active !== false);
+                        filteredProducts = [...allProducts];
+                        renderProducts();
+                    } else {
+                        showEmptyProducts();
+                    }
+                } catch (e2) {
+                    showEmptyProducts();
+                }
             }
         }
 
