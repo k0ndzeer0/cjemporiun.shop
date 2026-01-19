@@ -1204,27 +1204,113 @@
         }
 
         @media (max-width: 768px) {
+            .product-modal {
+                padding: 10px;
+                align-items: flex-start;
+            }
+            
+            .product-modal-content {
+                max-width: 100%;
+                width: 100%;
+                max-height: 95vh;
+                margin: 0;
+                border-radius: 15px 15px 0 0;
+                position: fixed;
+                bottom: 0;
+                top: auto;
+                animation: modalSlideUp 0.3s ease-out;
+            }
+            
+            @keyframes modalSlideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(100%);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
             .product-modal-body {
                 grid-template-columns: 1fr;
-                gap: 30px;
-                padding: 30px 20px;
+                gap: 20px;
+                padding: 20px 15px;
+                max-height: calc(95vh - 60px);
+                overflow-y: auto;
             }
 
             .product-modal-image {
-                min-height: 300px;
-                padding: 20px;
+                min-height: 250px;
+                max-height: 300px;
+                padding: 15px;
+            }
+            
+            .product-modal-image img {
+                max-height: 250px;
             }
 
             .product-modal-name {
-                font-size: 24px;
+                font-size: 22px;
+                line-height: 1.3;
             }
 
             .product-modal-price {
-                font-size: 28px;
+                font-size: 26px;
+            }
+            
+            .product-modal-brand {
+                font-size: 14px;
+            }
+            
+            .product-modal-details {
+                gap: 12px;
+            }
+            
+            .product-modal-detail-item {
+                font-size: 14px;
+                flex-wrap: wrap;
+            }
+            
+            .product-modal-description {
+                font-size: 14px;
             }
 
             .product-modal-actions {
                 flex-direction: column;
+                gap: 10px;
+            }
+            
+            .product-modal-close {
+                top: 10px;
+                right: 10px;
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .product-modal-content {
+                max-height: 98vh;
+            }
+            
+            .product-modal-body {
+                padding: 15px 10px;
+                gap: 15px;
+            }
+            
+            .product-modal-image {
+                min-height: 200px;
+                max-height: 250px;
+            }
+            
+            .product-modal-name {
+                font-size: 20px;
+            }
+            
+            .product-modal-price {
+                font-size: 24px;
             }
         }
 
@@ -2447,6 +2533,37 @@
         </div>
     </section>
 
+    <!-- Products Section -->
+    <section class="products-section" id="produtos">
+        <div class="section-container">
+            <div class="products-header">
+                <h2 class="section-title">Nossos Produtos Exclusivos</h2>
+                <p class="section-subtitle">
+                    Explore nossa coleção cuidadosamente selecionada de perfumes árabes autênticos. 
+                    Cada fragrância foi escolhida para oferecer uma experiência única e memorável.
+                </p>
+            </div>
+
+            <div class="search-section">
+                <div class="search-box">
+                    <input type="text" class="search-input" id="search-input" placeholder="Buscar por nome ou marca...">
+                    <button class="btn-primary" onclick="searchProducts()" style="padding: 15px 30px;">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterProducts('all', event)">Todos os Produtos</button>
+                    <button class="filter-btn" onclick="filterProducts('premium', event)">Premium</button>
+                    <button class="filter-btn" onclick="filterProducts('popular', event)">Mais Populares</button>
+                </div>
+            </div>
+
+            <div class="products-grid" id="products-grid">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
     <!-- Benefits Section -->
     <section class="benefits" id="beneficios">
         <div class="section-container">
@@ -2521,37 +2638,6 @@
                         <i class="fas fa-gift"></i> Comprar Agora
                     </a>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Products Section -->
-    <section class="products-section" id="produtos">
-        <div class="section-container">
-            <div class="products-header">
-                <h2 class="section-title">Nossos Produtos Exclusivos</h2>
-                <p class="section-subtitle">
-                    Explore nossa coleção cuidadosamente selecionada de perfumes árabes autênticos. 
-                    Cada fragrância foi escolhida para oferecer uma experiência única e memorável.
-                </p>
-            </div>
-
-            <div class="search-section">
-                <div class="search-box">
-                    <input type="text" class="search-input" id="search-input" placeholder="Buscar por nome ou marca...">
-                    <button class="btn-primary" onclick="searchProducts()" style="padding: 15px 30px;">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-                <div class="filter-buttons">
-                    <button class="filter-btn active" onclick="filterProducts('all', event)">Todos os Produtos</button>
-                    <button class="filter-btn" onclick="filterProducts('premium', event)">Premium</button>
-                    <button class="filter-btn" onclick="filterProducts('popular', event)">Mais Populares</button>
-                </div>
-            </div>
-
-            <div class="products-grid" id="products-grid">
-                <!-- Products will be loaded here -->
             </div>
         </div>
     </section>
@@ -3625,12 +3711,15 @@
         }
 
         function closeProductModal(event) {
-            if (event && event.target !== event.currentTarget && !event.target.closest('.product-modal-close')) {
+            // Se o evento foi passado e não foi clicado no overlay ou no botão de fechar, não fecha
+            if (event && event.target !== event.currentTarget && !event.target.closest('.product-modal-close') && !event.target.closest('.product-modal-content')) {
                 return;
             }
             const modal = document.getElementById('product-modal');
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
         }
 
         // Close modal with ESC key
