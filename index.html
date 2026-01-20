@@ -1239,20 +1239,26 @@
 
         @media (max-width: 768px) {
             .product-modal {
-                padding: 10px;
-                align-items: flex-start;
+                padding: 0;
+                align-items: flex-end;
+                justify-content: center;
             }
             
             .product-modal-content {
                 max-width: 100%;
                 width: 100%;
                 max-height: 95vh;
+                height: auto;
                 margin: 0;
-                border-radius: 15px 15px 0 0;
+                border-radius: 20px 20px 0 0;
                 position: fixed;
                 bottom: 0;
+                left: 0;
+                right: 0;
                 top: auto;
                 animation: modalSlideUp 0.3s ease-out;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
             
             @keyframes modalSlideUp {
@@ -1270,49 +1276,134 @@
                 grid-template-columns: 1fr;
                 gap: 20px;
                 padding: 20px 15px;
-                max-height: calc(95vh - 60px);
-                overflow-y: auto;
+                padding-top: 50px;
+                max-height: none;
+                overflow-y: visible;
+                display: flex;
+                flex-direction: column;
             }
 
             .product-modal-image {
-                min-height: 250px;
-                max-height: 300px;
+                min-height: 200px;
+                max-height: 250px;
                 padding: 15px;
+                width: 100%;
             }
             
             .product-modal-image img {
-                max-height: 250px;
+                max-height: 220px;
+                max-width: 100%;
+                width: auto;
+                height: auto;
             }
 
             .product-modal-name {
-                font-size: 22px;
+                font-size: 20px;
                 line-height: 1.3;
+                word-wrap: break-word;
             }
 
             .product-modal-price {
-                font-size: 26px;
+                font-size: 24px;
             }
             
             .product-modal-brand {
-                font-size: 14px;
+                font-size: 13px;
             }
             
             .product-modal-details {
                 gap: 12px;
+                width: 100%;
             }
             
             .product-modal-detail-item {
                 font-size: 14px;
                 flex-wrap: wrap;
+                width: 100%;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }
+            
+            .product-modal-detail-item span {
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                max-width: 100%;
             }
             
             .product-modal-description {
                 font-size: 14px;
+                line-height: 1.6;
+                word-wrap: break-word;
             }
 
             .product-modal-actions {
                 flex-direction: column;
                 gap: 10px;
+                width: 100%;
+                position: sticky;
+                bottom: 0;
+                background: var(--bg-card);
+                padding-top: 15px;
+                margin-top: auto;
+            }
+            
+            .product-modal-close {
+                top: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                z-index: 100;
+                background: rgba(212, 175, 55, 0.3);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .product-modal-content {
+                max-height: 98vh;
+                border-radius: 15px 15px 0 0;
+            }
+            
+            .product-modal-body {
+                padding: 15px 12px;
+                padding-top: 45px;
+                gap: 15px;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .product-modal-image {
+                min-height: 180px;
+                max-height: 220px;
+                padding: 10px;
+                width: 100%;
+            }
+            
+            .product-modal-image img {
+                max-height: 200px;
+                max-width: 100%;
+            }
+            
+            .product-modal-name {
+                font-size: 18px;
+                line-height: 1.2;
+            }
+            
+            .product-modal-price {
+                font-size: 22px;
+            }
+            
+            .product-modal-brand {
+                font-size: 12px;
+            }
+            
+            .product-modal-detail-item {
+                font-size: 13px;
+            }
+            
+            .product-modal-description {
+                font-size: 13px;
+                line-height: 1.5;
             }
             
             .product-modal-close {
@@ -1322,29 +1413,9 @@
                 height: 36px;
                 font-size: 18px;
             }
-        }
-        
-        @media (max-width: 480px) {
-            .product-modal-content {
-                max-height: 98vh;
-            }
             
-            .product-modal-body {
-                padding: 15px 10px;
-                gap: 15px;
-            }
-            
-            .product-modal-image {
-                min-height: 200px;
-                max-height: 250px;
-            }
-            
-            .product-modal-name {
-                font-size: 20px;
-            }
-            
-            .product-modal-price {
-                font-size: 24px;
+            .product-modal-actions {
+                padding-bottom: 10px;
             }
         }
 
@@ -3633,18 +3704,48 @@
 
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
-            if (confirm(`Finalizar compra no valor de R$ ${total.toFixed(2).replace('.', ',')}?\n\nVocê será redirecionado para o checkout.`)) {
-                showToast('Redirecionando para o checkout...', 'success');
-                // Here you would integrate with your payment system
-                // For now, just clear cart after a delay
-                setTimeout(() => {
-                    cart = [];
-                    saveCart();
-                    updateCartUI();
-                    toggleCart();
-                    loadProducts();
-                }, 2000);
-            }
+            // Gerar mensagem para WhatsApp
+            let message = '🛍️ *PEDIDO - CJ EMPÓRIUM*\n\n';
+            message += 'Olá! Gostaria de finalizar meu pedido:\n\n';
+            
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                message += `*${index + 1}. ${item.name}*`;
+                if (item.brand) {
+                    message += ` - ${item.brand}`;
+                }
+                message += `\n`;
+                message += `   Quantidade: ${item.quantity}x\n`;
+                message += `   Valor unitário: R$ ${item.price.toFixed(2).replace('.', ',')}\n`;
+                message += `   Subtotal: R$ ${itemTotal.toFixed(2).replace('.', ',')}\n\n`;
+            });
+            
+            message += `━━━━━━━━━━━━━━━━━━━━\n`;
+            message += `*TOTAL: R$ ${total.toFixed(2).replace('.', ',')}*\n\n`;
+            message += `Aguardo informações sobre forma de pagamento e entrega. 😊`;
+            
+            // Número do WhatsApp (formato: 5514997892790 - código do país + DDD + número)
+            const whatsappNumber = '5514997892790';
+            
+            // Codificar mensagem para URL
+            const encodedMessage = encodeURIComponent(message);
+            
+            // URL do WhatsApp Web/App
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+            
+            // Abrir WhatsApp em nova aba
+            window.open(whatsappUrl, '_blank');
+            
+            // Mostrar toast
+            showToast('Redirecionando para o WhatsApp...', 'success');
+            
+            // Limpar carrinho após um pequeno delay
+            setTimeout(() => {
+                cart = [];
+                saveCart();
+                updateCartUI();
+                toggleCart();
+            }, 1000);
         }
 
         function showToast(message, type = 'success') {
