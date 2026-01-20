@@ -92,31 +92,30 @@
             align-items: center;
             gap: 20px;
             flex-wrap: wrap;
+            position: relative;
         }
 
         .logo {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            width: 0 !important;
-            height: 0 !important;
-            overflow: hidden !important;
-            position: absolute !important;
-            left: -9999px !important;
-            /* Escondido em todos os tamanhos - só aparece no menu hambúrguer quando aberto */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+        
+        .logo img {
+            max-height: 60px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block !important;
         }
 
         .logo:hover {
             transform: scale(1.05);
-        }
-
-        .logo img {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            width: 0 !important;
-            height: 0 !important;
-            overflow: hidden !important;
         }
 
         .logo:hover img {
@@ -126,7 +125,15 @@
         /* Garantir que no desktop a logo nunca apareça */
         @media (min-width: 969px) {
             .logo {
+                display: flex !important;
+            }
+            
+            .menu-toggle {
                 display: none !important;
+            }
+            
+            .nav-menu {
+                display: flex !important;
             }
             
             /* Garantir que a logo do menu mobile não apareça no desktop */
@@ -312,6 +319,8 @@
             display: flex;
             align-items: center;
             gap: 20px;
+            order: 3;
+            margin-left: auto;
         }
 
         .cart-icon {
@@ -353,7 +362,9 @@
 
         /* Mobile Menu Toggle */
         .menu-toggle {
-            display: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: rgba(212, 175, 55, 0.1);
             border: 2px solid rgba(212, 175, 55, 0.3);
             border-radius: 8px;
@@ -364,6 +375,7 @@
             transition: all 0.3s;
             z-index: 1001;
             position: relative;
+            order: 1;
         }
 
         .menu-toggle:hover {
@@ -923,6 +935,20 @@
             .product-card {
                 max-width: 100%;
                 width: 100%;
+                pointer-events: none !important;
+            }
+            
+            .product-card * {
+                pointer-events: none !important;
+            }
+            
+            .product-actions,
+            .product-actions *,
+            .btn-view-product,
+            .btn-whatsapp {
+                pointer-events: auto !important;
+                z-index: 99999 !important;
+                position: relative !important;
             }
         }
         
@@ -2172,12 +2198,12 @@
             }
             
             .logo {
-                display: none !important; /* Logo não aparece no header mobile, só no menu hambúrguer */
+                display: flex !important;
                 flex: 0 0 auto;
             }
             
             .logo img {
-                height: 50px;
+                max-height: 50px;
             }
             
             .nav-menu {
@@ -2188,11 +2214,11 @@
                 display: flex !important;
                 align-items: center;
                 justify-content: center;
-                order: 3;
+                order: 1;
             }
             
             .header-actions {
-                order: 2;
+                order: 3;
                 gap: 10px;
             }
             
@@ -2778,8 +2804,12 @@
                 padding: 0 15px;
             }
             
+            .logo {
+                display: flex !important;
+            }
+            
             .logo img {
-                height: 40px;
+                max-height: 40px;
             }
         }
         
@@ -2901,6 +2931,21 @@
     <header class="header" id="header">
         <div class="header-content">
             <!-- Logo removida completamente do header - só aparece no menu hambúrguer mobile -->
+            <button class="menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="logo">
+                <img src="https://zpqtcrfygjtjtacufgbv.supabase.co/storage/v1/object/public/logos/LOGO%20SEM%20FUNDO.png" alt="CJ Empórium Logo">
+            </div>
+            
+            <div class="header-actions">
+                <div class="cart-icon" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
+                </div>
+            </div>
+            
             <nav class="nav-menu" id="nav-menu">
                 <div class="mobile-menu-logo">
                     <img src="https://zpqtcrfygjtjtacufgbv.supabase.co/storage/v1/object/public/logos/LOGO%20SEM%20FUNDO.png" alt="CJ Empórium Logo">
@@ -2911,7 +2956,7 @@
                         Perfumes
                     </div>
                     <div class="dropdown-menu" id="perfumes-dropdown">
-                        <a href="#produtos" class="dropdown-item" onclick="filterByCategory('masculino', event)">
+<a href="#produtos" class="dropdown-item" onclick="filterByCategory('masculino', event)">
                             <i class="fas fa-mars"></i> Masculino
                         </a>
                         <a href="#produtos" class="dropdown-item" onclick="filterByCategory('feminino', event)">
@@ -2936,15 +2981,6 @@
                 <a href="#beneficios" class="nav-item">Sobre Nós</a>
                 <a href="#contato" class="nav-item">Contato</a>
             </nav>
-            <div class="header-actions">
-                <div class="cart-icon" onclick="toggleCart()">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
-                </div>
-                <button class="menu-toggle" onclick="toggleMobileMenu()">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
         </div>
     </header>
     
@@ -3298,6 +3334,58 @@
         let filteredProducts = [];
         let cart = JSON.parse(localStorage.getItem('loja_cart') || '[]');
         let currentFilter = 'all';
+        
+        // EXPOR FUNÇÕES NO WINDOW IMEDIATAMENTE - ANTES DE QUALQUER OUTRA COISA
+        window.viewProduct = function(productId) {
+            console.log('🔵 viewProduct chamado - ID:', productId);
+            const product = allProducts.find(p => p.id === productId);
+            if (product) {
+                showProductModal(product);
+            } else {
+                console.error('❌ Produto não encontrado:', productId, 'Total produtos:', allProducts.length);
+            }
+        };
+        
+        window.buyOnWhatsApp = function(productId) {
+            console.log('🟢 buyOnWhatsApp chamado - ID:', productId);
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) {
+                console.error('❌ Produto não encontrado:', productId);
+                alert('Produto não encontrado!');
+                return;
+            }
+            
+            const price = parseFloat(product.price || 0);
+            const discountPrice = (price * 0.95).toFixed(2).replace('.', ',');
+            const installments = 10;
+            const installmentValue = (price / installments).toFixed(2).replace('.', ',');
+            
+            let message = '🛍️ *CJ EMPÓRIUM*\n\n';
+            message += 'Olá! Tenho interesse neste produto:\n\n';
+            message += `*${product.name}*`;
+            if (product.brand) {
+                message += ` - ${product.brand}`;
+            }
+            message += `\n`;
+            message += `💰 *Preço:* R$ ${price.toFixed(2).replace('.', ',')}\n`;
+            message += `💳 R$ ${discountPrice} à vista com desconto\n`;
+            message += `📅 ou ${installments}x de R$ ${installmentValue} sem juros\n\n`;
+            message += `Gostaria de mais informações sobre este produto! 😊`;
+            
+            const whatsappNumber = '5514997892790';
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+            
+            window.open(whatsappUrl, '_blank');
+            if (typeof showToast === 'function') {
+                showToast('Redirecionando para o WhatsApp...', 'success');
+            }
+        };
+        
+        console.log('✅ Funções expostas no window:', {
+            viewProduct: typeof window.viewProduct,
+            buyOnWhatsApp: typeof window.buyOnWhatsApp
+        });
 
         // Header scroll effect
         window.addEventListener('scroll', () => {
@@ -3388,6 +3476,11 @@
             const overlay = document.getElementById('mobile-menu-overlay');
             const body = document.body;
             
+            if (!navMenu) {
+                console.error('nav-menu não encontrado');
+                return;
+            }
+            
             navMenu.classList.toggle('active');
             if (menuToggle) menuToggle.classList.toggle('active');
             if (overlay) overlay.classList.toggle('active');
@@ -3399,6 +3492,9 @@
                 body.style.overflow = '';
             }
         }
+        
+        // Expor no window para garantir funcionamento
+        window.toggleMobileMenu = toggleMobileMenu;
 
         function closeMobileMenu() {
             const navMenu = document.getElementById('nav-menu');
@@ -3729,56 +3825,7 @@
                 return;
             }
             
-            // Adicionar delegação de eventos no grid para os botões
-            grid.addEventListener('click', function(e) {
-                const viewBtn = e.target.closest('.btn-view-product');
-                const whatsappBtn = e.target.closest('.btn-whatsapp');
-                
-                if (viewBtn) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    const productId = parseInt(viewBtn.getAttribute('data-product-id'));
-                    if (productId) {
-                        viewProduct(productId);
-                    }
-                    return false;
-                }
-                
-                if (whatsappBtn) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    const productId = parseInt(whatsappBtn.getAttribute('data-product-id'));
-                    if (productId) {
-                        buyOnWhatsApp(productId);
-                    }
-                    return false;
-                }
-            }, true);
-            
-            grid.addEventListener('touchend', function(e) {
-                const viewBtn = e.target.closest('.btn-view-product');
-                const whatsappBtn = e.target.closest('.btn-whatsapp');
-                
-                if (viewBtn) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    const productId = parseInt(viewBtn.getAttribute('data-product-id'));
-                    if (productId) {
-                        viewProduct(productId);
-                    }
-                    return false;
-                }
-                
-                if (whatsappBtn) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    const productId = parseInt(whatsappBtn.getAttribute('data-product-id'));
-                    if (productId) {
-                        buyOnWhatsApp(productId);
-                    }
-                    return false;
-                }
-            }, true);
+            // Remover delegação de eventos - usar apenas onclick inline
 
             filteredProducts.forEach(product => {
                 const price = parseFloat(product.price || 0);
@@ -3792,19 +3839,23 @@
                 const card = document.createElement('div');
                 card.className = 'product-card fade-in';
                 
-                // No mobile, não adicionar onclick no card - apenas nos botões
+                // NO MOBILE: Card não tem nenhuma interação - apenas os botões funcionam
+                // NO DESKTOP: Card abre modal ao clicar (exceto nos botões)
                 const isMobile = window.innerWidth <= 768;
                 
                 if (!isMobile) {
-                    // Função para abrir modal ao clicar no card (apenas desktop)
-                    const handleCardClick = (e) => {
-                        // Verificar se o clique foi em um botão ou dentro da área de ações
+                    // Desktop: card abre modal
+                    card.style.cursor = 'pointer';
+                    card.addEventListener('click', (e) => {
                         const clickedButton = e.target.closest('.btn-view-product, .btn-whatsapp, .product-actions');
                         if (!clickedButton) {
                             showProductModal(product);
                         }
-                    };
-                    card.addEventListener('click', handleCardClick, false);
+                    }, false);
+                } else {
+                    // Mobile: card não faz nada
+                    card.style.cursor = 'default';
+                    card.style.pointerEvents = 'none';
                 }
 
                 // Calcular parcelamento (10x sem juros)
@@ -3825,10 +3876,10 @@
                             ou ${installments}x de R$ ${installmentValue} sem juros
                         </div>
                         <div class="product-actions">
-                            <button class="btn-view-product" data-product-id="${product.id}" onclick="event.stopPropagation(); event.preventDefault(); window.viewProduct(${product.id}); return false;" ontouchend="event.stopPropagation(); event.preventDefault(); window.viewProduct(${product.id}); return false;">
+                            <button class="btn-view-product" onclick="window.viewProduct && window.viewProduct(${product.id});" ontouchend="window.viewProduct && window.viewProduct(${product.id});">
                                 Ver produtos
                             </button>
-                            <button class="btn-whatsapp" data-product-id="${product.id}" onclick="event.stopPropagation(); event.preventDefault(); window.buyOnWhatsApp(${product.id}); return false;" ontouchend="event.stopPropagation(); event.preventDefault(); window.buyOnWhatsApp(${product.id}); return false;">
+                            <button class="btn-whatsapp" onclick="window.buyOnWhatsApp && window.buyOnWhatsApp(${product.id});" ontouchend="window.buyOnWhatsApp && window.buyOnWhatsApp(${product.id});">
                                 <i class="fab fa-whatsapp"></i>
                                 Comprar no WhatsApp
                             </button>
@@ -3839,38 +3890,9 @@
                 grid.appendChild(card);
                 observer.observe(card);
                 
-                // Adicionar event listeners aos botões para garantir funcionamento no mobile
-                const viewBtn = card.querySelector('.btn-view-product');
-                const whatsappBtn = card.querySelector('.btn-whatsapp');
-                
-                if (viewBtn) {
-                    const handleViewClick = (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        viewProduct(product.id);
-                        return false;
-                    };
-                    viewBtn.addEventListener('click', handleViewClick, true);
-                    viewBtn.addEventListener('touchend', handleViewClick, true);
-                    viewBtn.addEventListener('touchstart', (e) => {
-                        e.stopPropagation();
-                    }, true);
-                }
-                
-                if (whatsappBtn) {
-                    const handleWhatsAppClick = (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        buyOnWhatsApp(product.id);
-                        return false;
-                    };
-                    whatsappBtn.addEventListener('click', handleWhatsAppClick, true);
-                    whatsappBtn.addEventListener('touchend', handleWhatsAppClick, true);
-                    whatsappBtn.addEventListener('touchstart', (e) => {
-                        e.stopPropagation();
-                    }, true);
+                // Garantir que funções estejam disponíveis
+                if (!window.viewProduct || !window.buyOnWhatsApp) {
+                    console.warn('Funções não estão disponíveis no window');
                 }
             });
         }
@@ -4169,40 +4191,7 @@
             }
         }
         
-        // Função para comprar direto no WhatsApp
-        function buyOnWhatsApp(productId) {
-            const product = allProducts.find(p => p.id === productId);
-            if (!product) return;
-            
-            const price = parseFloat(product.price || 0);
-            const discountPrice = (price * 0.95).toFixed(2).replace('.', ',');
-            const installments = 10;
-            const installmentValue = (price / installments).toFixed(2).replace('.', ',');
-            
-            let message = '🛍️ *CJ EMPÓRIUM*\n\n';
-            message += 'Olá! Tenho interesse neste produto:\n\n';
-            message += `*${product.name}*`;
-            if (product.brand) {
-                message += ` - ${product.brand}`;
-            }
-            message += `\n`;
-            message += `💰 *Preço:* R$ ${price.toFixed(2).replace('.', ',')}\n`;
-            message += `💳 R$ ${discountPrice} à vista com desconto\n`;
-            message += `📅 ou ${installments}x de R$ ${installmentValue} sem juros\n\n`;
-            message += `Gostaria de mais informações sobre este produto! 😊`;
-            
-            // Número do WhatsApp
-            const whatsappNumber = '5514997892790';
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-            
-            window.open(whatsappUrl, '_blank');
-            showToast('Redirecionando para o WhatsApp...', 'success');
-        }
-        
-        // Expor no window para onclick inline funcionar
-        window.viewProduct = viewProduct;
-        window.buyOnWhatsApp = buyOnWhatsApp;
+        // Funções já estão expostas no início do script - não precisa duplicar
         
         // Product Modal Functions
         function showProductModal(product) {
