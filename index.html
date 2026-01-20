@@ -814,7 +814,7 @@
 
         /* Products Section */
         .products-section {
-            padding: 100px 20px;
+            padding: 20px 20px;
             background: rgba(10, 10, 10, 0.95);
             position: relative;
         }
@@ -838,14 +838,14 @@
 
         .products-header {
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 10px;
         }
 
         .search-section {
             background: var(--bg-card);
-            padding: 30px;
+            padding: 20px;
             border-radius: 15px;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             width: 100%;
             box-sizing: border-box;
@@ -947,10 +947,15 @@
             .product-card {
                 max-width: 100%;
                 width: 100%;
-                pointer-events: none !important;
+                pointer-events: auto !important; /* Mudado para auto para permitir eventos */
             }
             
-            .product-card * {
+            /* Apenas elementos de informação não clicáveis */
+            .product-card .product-image,
+            .product-card .product-info .product-brand,
+            .product-card .product-info .product-name,
+            .product-card .product-info .product-price,
+            .product-card .product-info .product-price-installment {
                 pointer-events: none !important;
             }
             
@@ -1254,11 +1259,15 @@
         /* Garantir que botões sejam clicáveis no mobile */
         @media (max-width: 768px) {
             .product-card {
-                pointer-events: none !important;
+                pointer-events: auto !important; /* Mudado para auto para permitir eventos */
             }
             
-            .product-card * {
-                pointer-events: none !important;
+            .product-card .product-image,
+            .product-card .product-info .product-brand,
+            .product-card .product-info .product-name,
+            .product-card .product-info .product-price,
+            .product-card .product-info .product-price-installment {
+                pointer-events: none !important; /* Apenas elementos de info não clicáveis */
             }
             
             .product-actions {
@@ -1277,6 +1286,7 @@
                 position: relative !important;
                 cursor: pointer !important;
                 -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3) !important;
+                touch-action: manipulation !important;
             }
         }
         
@@ -3047,38 +3057,6 @@
                 Transforme cada momento em uma experiência única com perfumes que duram o dia inteiro. 
                 Descubra fragrâncias raras e autênticas que vão além do comum.
             </p>
-            <div class="cta-buttons">
-                <a href="#produtos" class="btn-primary">
-                    <i class="fas fa-shopping-bag"></i>
-                    Ver Catálogo Completo
-                </a>
-                <a href="#produtos" class="btn-primary" style="background: rgba(212, 175, 55, 0.2); border: 2px solid var(--primary-color);">
-                    <i class="fas fa-fire"></i>
-                    Ofertas Exclusivas
-                </a>
-                <a href="#beneficios" class="btn-secondary">
-                    <i class="fas fa-info-circle"></i>
-                    Por Que Escolher Nós?
-                </a>
-            </div>
-            <div class="trust-indicators">
-                <div class="trust-item">
-                    <i class="fas fa-shipping-fast"></i>
-                    <div class="trust-item-text">Entrega Rápida</div>
-                </div>
-                <div class="trust-item">
-                    <i class="fas fa-shield-alt"></i>
-                    <div class="trust-item-text">100% Autêntico</div>
-                </div>
-                <div class="trust-item">
-                    <i class="fas fa-star"></i>
-                    <div class="trust-item-text">Qualidade Premium</div>
-                </div>
-                <div class="trust-item">
-                    <i class="fas fa-lock"></i>
-                    <div class="trust-item-text">Compra Segura</div>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -3087,10 +3065,6 @@
         <div class="section-container">
             <div class="products-header">
                 <h2 class="section-title">Nossos Produtos Exclusivos</h2>
-                <p class="section-subtitle">
-                    Explore nossa coleção cuidadosamente selecionada de perfumes árabes autênticos. 
-                    Cada fragrância foi escolhida para oferecer uma experiência única e memorável.
-                </p>
             </div>
 
             <div class="search-section">
@@ -3099,11 +3073,6 @@
                     <button class="btn-primary" onclick="searchProducts()" style="padding: 15px 30px;">
                         <i class="fas fa-search"></i>
                     </button>
-                </div>
-                <div class="filter-buttons">
-                    <button class="filter-btn active" onclick="filterProducts('all', event)">Todos os Produtos</button>
-                    <button class="filter-btn" onclick="filterProducts('premium', event)">Premium</button>
-                    <button class="filter-btn" onclick="filterProducts('popular', event)">Mais Populares</button>
                 </div>
             </div>
 
@@ -3293,6 +3262,28 @@
         </div>
     </section>
 
+    <!-- Trust Indicators -->
+    <section class="trust-section" style="padding: 60px 20px; background: rgba(26, 26, 26, 0.95); text-align: center;">
+        <div class="trust-indicators">
+            <div class="trust-item">
+                <i class="fas fa-shipping-fast"></i>
+                <div class="trust-item-text">Entrega Rápida</div>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-shield-alt"></i>
+                <div class="trust-item-text">100% Autêntico</div>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-star"></i>
+                <div class="trust-item-text">Qualidade Premium</div>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-lock"></i>
+                <div class="trust-item-text">Compra Segura</div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer / Contato -->
     <footer class="footer" id="contato">
         <div class="footer-content">
@@ -3383,20 +3374,24 @@
         // FUNÇÕES GLOBAIS - MESMA LÓGICA DO CARRINHO E MENU
         // EXPOR NO WINDOW PARA GARANTIR FUNCIONAMENTO
         window.viewProduct = function(productId) {
-            console.log('🔵 viewProduct chamado - ID:', productId);
+            console.log('🔵🔵🔵 viewProduct CHAMADO - ID:', productId, 'allProducts.length:', allProducts.length);
             const product = allProducts.find(p => p.id === productId);
+            console.log('🔵 Produto encontrado:', product ? product.name : 'NÃO ENCONTRADO');
             if (product) {
+                console.log('🔵 Abrindo modal...');
                 showProductModal(product);
             } else {
                 console.error('❌ Produto não encontrado:', productId);
+                alert('Produto não encontrado! ID: ' + productId);
             }
         };
         
         window.buyOnWhatsApp = function(productId) {
-            console.log('🟢 buyOnWhatsApp chamado - ID:', productId);
+            console.log('🟢🟢🟢 buyOnWhatsApp CHAMADO - ID:', productId, 'allProducts.length:', allProducts.length);
             const product = allProducts.find(p => p.id === productId);
+            console.log('🟢 Produto encontrado:', product ? product.name : 'NÃO ENCONTRADO');
             if (!product) {
-                alert('Produto não encontrado!');
+                alert('Produto não encontrado! ID: ' + productId);
                 return;
             }
             
@@ -3907,17 +3902,157 @@
             }
         }
 
+        // DELEGAÇÃO DE EVENTOS NO GRID - MESMA LÓGICA DO CARRINHO
+        function setupProductGridEvents() {
+            const grid = document.getElementById('products-grid');
+            if (!grid) {
+                console.error('❌ Grid não encontrado!');
+                return null;
+            }
+            
+            console.log('🔧 Configurando delegação de eventos no grid');
+            
+            // Remover listeners anteriores clonando o grid
+            const newGrid = grid.cloneNode(false);
+            grid.parentNode.replaceChild(newGrid, grid);
+            
+            // Adicionar delegação de eventos no grid
+            newGrid.addEventListener('click', function(e) {
+                console.log('🖱️ Click detectado no grid, target:', e.target, 'tagName:', e.target.tagName, 'className:', e.target.className);
+                
+                // Procurar o botão mais próximo (pode ser o próprio elemento ou um pai)
+                let viewBtn = e.target.closest('.btn-view-product');
+                let whatsappBtn = e.target.closest('.btn-whatsapp');
+                
+                // Se não encontrou, pode ser que o clique foi em um elemento filho (ícone, texto)
+                if (!viewBtn && !whatsappBtn) {
+                    // Procurar em todos os pais
+                    let element = e.target;
+                    while (element && element !== newGrid) {
+                        if (element.classList && element.classList.contains('btn-view-product')) {
+                            viewBtn = element;
+                            break;
+                        }
+                        if (element.classList && element.classList.contains('btn-whatsapp')) {
+                            whatsappBtn = element;
+                            break;
+                        }
+                        element = element.parentElement;
+                    }
+                }
+                
+                if (viewBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    const productId = parseInt(viewBtn.getAttribute('data-product-id'));
+                    console.log('✅✅✅ CLICK VER PRODUTOS VIA DELEGAÇÃO! ID:', productId);
+                    if (productId && window.viewProduct) {
+                        window.viewProduct(productId);
+                    } else {
+                        console.error('❌ Erro: productId =', productId, 'window.viewProduct =', typeof window.viewProduct);
+                    }
+                    return false;
+                }
+                
+                if (whatsappBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    const productId = parseInt(whatsappBtn.getAttribute('data-product-id'));
+                    console.log('✅✅✅ CLICK WHATSAPP VIA DELEGAÇÃO! ID:', productId);
+                    if (productId && window.buyOnWhatsApp) {
+                        window.buyOnWhatsApp(productId);
+                    } else {
+                        console.error('❌ Erro: productId =', productId, 'window.buyOnWhatsApp =', typeof window.buyOnWhatsApp);
+                    }
+                    return false;
+                }
+            }, true);
+            
+            newGrid.addEventListener('touchend', function(e) {
+                console.log('👆 Touch detectado no grid, target:', e.target, 'tagName:', e.target.tagName, 'className:', e.target.className);
+                
+                // Procurar o botão mais próximo (pode ser o próprio elemento ou um pai)
+                let viewBtn = e.target.closest('.btn-view-product');
+                let whatsappBtn = e.target.closest('.btn-whatsapp');
+                
+                // Se não encontrou, pode ser que o toque foi em um elemento filho (ícone, texto)
+                if (!viewBtn && !whatsappBtn) {
+                    // Procurar em todos os pais
+                    let element = e.target;
+                    while (element && element !== newGrid) {
+                        if (element.classList && element.classList.contains('btn-view-product')) {
+                            viewBtn = element;
+                            break;
+                        }
+                        if (element.classList && element.classList.contains('btn-whatsapp')) {
+                            whatsappBtn = element;
+                            break;
+                        }
+                        element = element.parentElement;
+                    }
+                }
+                
+                if (viewBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    const productId = parseInt(viewBtn.getAttribute('data-product-id'));
+                    console.log('✅✅✅ TOUCH VER PRODUTOS VIA DELEGAÇÃO! ID:', productId);
+                    if (productId && window.viewProduct) {
+                        window.viewProduct(productId);
+                    }
+                    return false;
+                }
+                
+                if (whatsappBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    const productId = parseInt(whatsappBtn.getAttribute('data-product-id'));
+                    console.log('✅✅✅ TOUCH WHATSAPP VIA DELEGAÇÃO! ID:', productId);
+                    if (productId && window.buyOnWhatsApp) {
+                        window.buyOnWhatsApp(productId);
+                    }
+                    return false;
+                }
+            }, true);
+            
+            console.log('✅ Delegação de eventos configurada no grid');
+            return newGrid;
+        }
+
         // Render products
         function renderProducts() {
+            console.log('🎨 renderProducts chamado');
             const grid = document.getElementById('products-grid');
-            grid.innerHTML = '';
+            if (!grid) {
+                console.error('❌ Grid não encontrado!');
+                return;
+            }
+            
+            console.log('✅ Grid encontrado, configurando eventos...');
+            // Configurar delegação de eventos ANTES de adicionar os cards
+            const newGrid = setupProductGridEvents();
+            if (!newGrid) {
+                console.error('❌ newGrid não foi criado!');
+                return;
+            }
+            
+            console.log('✅ Limpando grid...');
+            newGrid.innerHTML = '';
 
+            console.log('📦 filteredProducts.length:', filteredProducts.length);
             if (filteredProducts.length === 0) {
+                console.log('⚠️ Nenhum produto para renderizar');
                 showEmptyProducts();
                 return;
             }
             
-            filteredProducts.forEach(product => {
+            console.log('🚀 Iniciando renderização de', filteredProducts.length, 'produtos...');
+            filteredProducts.forEach((product, index) => {
+                console.log(`📦 Renderizando produto ${index + 1}/${filteredProducts.length}:`, product.id, product.name);
                 const price = parseFloat(product.price || 0);
                 const brand = product.brand || '';
                 const name = product.name || 'Produto sem nome';
@@ -3977,63 +4112,101 @@
                     </div>
                 `;
                 
-                // ADICIONAR EVENT LISTENERS DIRETAMENTE NOS BOTÕES
+                // ADICIONAR EVENTOS DIRETAMENTE NOS BOTÕES COMO FALLBACK
                 const viewBtn = card.querySelector('.btn-view-product');
                 const whatsappBtn = card.querySelector('.btn-whatsapp');
                 
+                console.log('🔍 Procurando botões no card:', {
+                    viewBtn: !!viewBtn,
+                    whatsappBtn: !!whatsappBtn,
+                    productId: product.id
+                });
+                
                 if (viewBtn) {
-                    viewBtn.addEventListener('click', function(e) {
+                    console.log('✅ Botão viewProduct encontrado, adicionando eventos...');
+                    // Remover qualquer listener anterior
+                    const newViewBtn = viewBtn.cloneNode(true);
+                    viewBtn.parentNode.replaceChild(newViewBtn, viewBtn);
+                    
+                    newViewBtn.addEventListener('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
                         e.stopImmediatePropagation();
-                        console.log('✅ CLICK VER PRODUTOS - ID:', product.id);
+                        console.log('🔥 CLICK DIRETO NO BOTÃO VER PRODUTOS - ID:', product.id);
                         if (window.viewProduct) {
                             window.viewProduct(product.id);
                         } else {
                             console.error('❌ window.viewProduct não existe');
                         }
                         return false;
-                    }, true);
+                    }, { capture: true, passive: false });
                     
-                    viewBtn.addEventListener('touchend', function(e) {
+                    newViewBtn.addEventListener('touchend', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
                         e.stopImmediatePropagation();
-                        console.log('✅ TOUCH VER PRODUTOS - ID:', product.id);
+                        console.log('🔥 TOUCH DIRETO NO BOTÃO VER PRODUTOS - ID:', product.id);
                         if (window.viewProduct) {
                             window.viewProduct(product.id);
                         }
                         return false;
-                    }, true);
+                    }, { capture: true, passive: false });
+                    
+                    // Também adicionar onclick como último recurso
+                    newViewBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('🔥 ONCLICK NO BOTÃO VER PRODUTOS - ID:', product.id);
+                        if (window.viewProduct) {
+                            window.viewProduct(product.id);
+                        }
+                        return false;
+                    };
                 }
                 
                 if (whatsappBtn) {
-                    whatsappBtn.addEventListener('click', function(e) {
+                    // Remover qualquer listener anterior
+                    const newWhatsappBtn = whatsappBtn.cloneNode(true);
+                    whatsappBtn.parentNode.replaceChild(newWhatsappBtn, whatsappBtn);
+                    
+                    newWhatsappBtn.addEventListener('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
                         e.stopImmediatePropagation();
-                        console.log('✅ CLICK WHATSAPP - ID:', product.id);
+                        console.log('🔥 CLICK DIRETO NO BOTÃO WHATSAPP - ID:', product.id);
                         if (window.buyOnWhatsApp) {
                             window.buyOnWhatsApp(product.id);
                         } else {
                             console.error('❌ window.buyOnWhatsApp não existe');
                         }
                         return false;
-                    }, true);
+                    }, { capture: true, passive: false });
                     
-                    whatsappBtn.addEventListener('touchend', function(e) {
+                    newWhatsappBtn.addEventListener('touchend', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
                         e.stopImmediatePropagation();
-                        console.log('✅ TOUCH WHATSAPP - ID:', product.id);
+                        console.log('🔥 TOUCH DIRETO NO BOTÃO WHATSAPP - ID:', product.id);
                         if (window.buyOnWhatsApp) {
                             window.buyOnWhatsApp(product.id);
                         }
                         return false;
-                    }, true);
+                    }, { capture: true, passive: false });
+                    
+                    // Também adicionar onclick como último recurso
+                    newWhatsappBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('🔥 ONCLICK NO BOTÃO WHATSAPP - ID:', product.id);
+                        if (window.buyOnWhatsApp) {
+                            window.buyOnWhatsApp(product.id);
+                        }
+                        return false;
+                    };
                 }
                 
-                grid.appendChild(card);
+                // Adicionar card ao grid
+                newGrid.appendChild(card);
                 observer.observe(card);
             });
         }
@@ -4516,14 +4689,33 @@
         }
 
         // Initialize
-        loadProducts();
-        updateCartUI();
+        console.log('🚀 Inicializando aplicação...');
+        console.log('🔍 Verificando funções:', {
+            loadProducts: typeof loadProducts,
+            updateCartUI: typeof updateCartUI,
+            renderProducts: typeof renderProducts,
+            setupProductGridEvents: typeof setupProductGridEvents
+        });
+        
+        try {
+            loadProducts();
+            updateCartUI();
+            console.log('✅ Aplicação inicializada com sucesso');
+        } catch (error) {
+            console.error('❌ ERRO ao inicializar aplicação:', error);
+            console.error('Stack:', error.stack);
+            alert('Erro ao carregar a página. Verifique o console (F12) para mais detalhes.');
+        }
         
         // Initialize dropdown listeners after DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initDropdownListeners);
-        } else {
-            initDropdownListeners();
+        try {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initDropdownListeners);
+            } else {
+                initDropdownListeners();
+            }
+        } catch (error) {
+            console.error('❌ Erro ao inicializar dropdown listeners:', error);
         }
     </script>
 </body>
