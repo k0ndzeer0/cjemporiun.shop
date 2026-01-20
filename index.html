@@ -95,11 +95,15 @@
         }
 
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-decoration: none;
-            transition: transform 0.3s;
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            position: absolute !important;
+            left: -9999px !important;
+            /* Escondido em todos os tamanhos - só aparece no menu hambúrguer quando aberto */
         }
 
         .logo:hover {
@@ -107,15 +111,45 @@
         }
 
         .logo img {
-            height: 70px;
-            width: auto;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 10px rgba(212, 175, 55, 0.3));
-            transition: filter 0.3s;
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
         }
 
         .logo:hover img {
             filter: drop-shadow(0 4px 20px rgba(212, 175, 55, 0.5));
+        }
+        
+        /* Garantir que no desktop a logo nunca apareça */
+        @media (min-width: 969px) {
+            .logo {
+                display: none !important;
+            }
+            
+            /* Garantir que a logo do menu mobile não apareça no desktop */
+            .nav-menu .mobile-menu-logo,
+            .nav-menu.active .mobile-menu-logo {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                width: 0 !important;
+                height: 0 !important;
+                overflow: hidden !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            .nav-menu .mobile-menu-logo img,
+            .nav-menu.active .mobile-menu-logo img {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                width: 0 !important;
+                height: 0 !important;
+            }
         }
 
 
@@ -1769,6 +1803,7 @@
             }
             
             .logo {
+                display: none !important; /* Logo não aparece no header mobile, só no menu hambúrguer */
                 flex: 0 0 auto;
             }
             
@@ -1807,7 +1842,7 @@
                 background: rgba(10, 10, 10, 0.98);
                 backdrop-filter: blur(15px);
                 flex-direction: column;
-                padding: 80px 0 20px 0;
+                padding: 0;
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
                 box-shadow: 4px 0 30px rgba(0,0,0,0.6);
@@ -1822,6 +1857,60 @@
                 transform: translateX(0);
                 display: flex;
             }
+            
+            /* Logo no menu mobile - só aparece quando menu está aberto */
+            .nav-menu .mobile-menu-logo {
+                display: none !important;
+            }
+            
+            /* Logo só aparece no mobile quando menu está ativo */
+            .nav-menu.active .mobile-menu-logo {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem 1rem;
+                border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+                background: transparent;
+                min-height: 100px;
+                width: 100%;
+                text-align: center;
+            }
+            
+            .nav-menu.active .mobile-menu-logo img {
+                max-width: 180px;
+                width: auto;
+                height: auto;
+                max-height: 90px;
+                object-fit: contain;
+                filter: drop-shadow(0 2px 10px rgba(212, 175, 55, 0.3));
+                background: transparent;
+                margin: 0 auto;
+                display: block;
+            }
+            
+            /* Garantir que no desktop a logo do menu nunca apareça */
+            @media (min-width: 969px) {
+                .nav-menu .mobile-menu-logo,
+                .nav-menu.active .mobile-menu-logo {
+                    display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    width: 0 !important;
+                    height: 0 !important;
+                    overflow: hidden !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                }
+                
+                .nav-menu .mobile-menu-logo img,
+                .nav-menu.active .mobile-menu-logo img {
+                    display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    width: 0 !important;
+                    height: 0 !important;
+                }
+            }
 
             .nav-item {
                 width: 100%;
@@ -1830,6 +1919,11 @@
                 border-bottom: 1px solid rgba(212, 175, 55, 0.1);
                 border-radius: 0;
                 margin: 0;
+            }
+            
+            /* Ajustar padding do menu quando tem logo */
+            .nav-menu .mobile-menu-logo + .nav-item {
+                margin-top: 0;
             }
             
             .nav-item::before {
@@ -1884,6 +1978,10 @@
                 border-left: none;
             }
 
+            .logo {
+                display: none !important; /* Logo não aparece no header mobile, só no menu hambúrguer */
+            }
+            
             .logo img {
                 height: 45px;
             }
@@ -2433,10 +2531,11 @@
     <!-- Header -->
     <header class="header" id="header">
         <div class="header-content">
-            <a href="#hero" class="logo">
-                <img src="https://zpqtcrfygjtjtacufgbv.supabase.co/storage/v1/object/public/logos/LOGO%20SEM%20FUNDO.png" alt="Logo">
-            </a>
+            <!-- Logo removida completamente do header - só aparece no menu hambúrguer mobile -->
             <nav class="nav-menu" id="nav-menu">
+                <div class="mobile-menu-logo">
+                    <img src="https://zpqtcrfygjtjtacufgbv.supabase.co/storage/v1/object/public/logos/LOGO%20SEM%20FUNDO.png" alt="CJ Empórium Logo">
+                </div>
                 <a href="#hero" class="nav-item active">Início</a>
                 <div class="nav-item-dropdown">
                     <div class="dropdown-toggle" onclick="toggleDropdown(event)">
