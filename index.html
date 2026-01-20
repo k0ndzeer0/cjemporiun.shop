@@ -892,6 +892,7 @@
             .products-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
+                max-width: 100%;
             }
         }
         
@@ -899,6 +900,7 @@
             .products-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
+                max-width: 100%;
             }
         }
 
@@ -912,6 +914,21 @@
             display: flex;
             flex-direction: column;
             border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 100%;
+            position: relative;
+        }
+        
+        @media (max-width: 768px) {
+            .product-card {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+        
+        .product-card button {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .product-card:hover {
@@ -1166,17 +1183,40 @@
             flex-direction: column;
             gap: 8px;
             margin-top: auto;
+            position: relative;
+            z-index: 1000;
+            pointer-events: auto !important;
         }
         
         @media (max-width: 768px) {
             .product-actions {
                 gap: 6px;
+                z-index: 1000;
+                pointer-events: auto !important;
             }
         }
         
         @media (max-width: 480px) {
             .product-actions {
                 gap: 5px;
+                z-index: 1000;
+                pointer-events: auto !important;
+            }
+        }
+        
+        /* Garantir que botões sejam clicáveis no mobile */
+        @media (max-width: 768px) {
+            .product-card {
+                pointer-events: auto;
+            }
+            
+            .product-card * {
+                pointer-events: auto;
+            }
+            
+            .product-actions * {
+                pointer-events: auto !important;
+                z-index: 1001 !important;
             }
         }
         
@@ -1195,6 +1235,12 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+            position: relative;
+            z-index: 100;
+            pointer-events: auto !important;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
         }
         
         @media (max-width: 768px) {
@@ -1231,6 +1277,12 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+            position: relative;
+            z-index: 100;
+            pointer-events: auto !important;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
         }
         
         @media (max-width: 768px) {
@@ -3676,6 +3728,57 @@
                 showEmptyProducts();
                 return;
             }
+            
+            // Adicionar delegação de eventos no grid para os botões
+            grid.addEventListener('click', function(e) {
+                const viewBtn = e.target.closest('.btn-view-product');
+                const whatsappBtn = e.target.closest('.btn-whatsapp');
+                
+                if (viewBtn) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const productId = parseInt(viewBtn.getAttribute('data-product-id'));
+                    if (productId) {
+                        viewProduct(productId);
+                    }
+                    return false;
+                }
+                
+                if (whatsappBtn) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const productId = parseInt(whatsappBtn.getAttribute('data-product-id'));
+                    if (productId) {
+                        buyOnWhatsApp(productId);
+                    }
+                    return false;
+                }
+            }, true);
+            
+            grid.addEventListener('touchend', function(e) {
+                const viewBtn = e.target.closest('.btn-view-product');
+                const whatsappBtn = e.target.closest('.btn-whatsapp');
+                
+                if (viewBtn) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const productId = parseInt(viewBtn.getAttribute('data-product-id'));
+                    if (productId) {
+                        viewProduct(productId);
+                    }
+                    return false;
+                }
+                
+                if (whatsappBtn) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const productId = parseInt(whatsappBtn.getAttribute('data-product-id'));
+                    if (productId) {
+                        buyOnWhatsApp(productId);
+                    }
+                    return false;
+                }
+            }, true);
 
             filteredProducts.forEach(product => {
                 const price = parseFloat(product.price || 0);
@@ -3688,12 +3791,21 @@
 
                 const card = document.createElement('div');
                 card.className = 'product-card fade-in';
-                card.onclick = (e) => {
-                    // Don't open modal if clicking on buttons
-                    if (!e.target.closest('.btn-view-product') && !e.target.closest('.btn-whatsapp')) {
-                        showProductModal(product);
-                    }
-                };
+                
+                // No mobile, não adicionar onclick no card - apenas nos botões
+                const isMobile = window.innerWidth <= 768;
+                
+                if (!isMobile) {
+                    // Função para abrir modal ao clicar no card (apenas desktop)
+                    const handleCardClick = (e) => {
+                        // Verificar se o clique foi em um botão ou dentro da área de ações
+                        const clickedButton = e.target.closest('.btn-view-product, .btn-whatsapp, .product-actions');
+                        if (!clickedButton) {
+                            showProductModal(product);
+                        }
+                    };
+                    card.addEventListener('click', handleCardClick, false);
+                }
 
                 // Calcular parcelamento (10x sem juros)
                 const installments = 10;
@@ -3713,10 +3825,10 @@
                             ou ${installments}x de R$ ${installmentValue} sem juros
                         </div>
                         <div class="product-actions">
-                            <button class="btn-view-product" onclick="event.stopPropagation(); viewProduct(${product.id})">
+                            <button class="btn-view-product" data-product-id="${product.id}" onclick="event.stopPropagation(); event.preventDefault(); window.viewProduct(${product.id}); return false;" ontouchend="event.stopPropagation(); event.preventDefault(); window.viewProduct(${product.id}); return false;">
                                 Ver produtos
                             </button>
-                            <button class="btn-whatsapp" onclick="event.stopPropagation(); buyOnWhatsApp(${product.id})">
+                            <button class="btn-whatsapp" data-product-id="${product.id}" onclick="event.stopPropagation(); event.preventDefault(); window.buyOnWhatsApp(${product.id}); return false;" ontouchend="event.stopPropagation(); event.preventDefault(); window.buyOnWhatsApp(${product.id}); return false;">
                                 <i class="fab fa-whatsapp"></i>
                                 Comprar no WhatsApp
                             </button>
@@ -3726,6 +3838,40 @@
                 
                 grid.appendChild(card);
                 observer.observe(card);
+                
+                // Adicionar event listeners aos botões para garantir funcionamento no mobile
+                const viewBtn = card.querySelector('.btn-view-product');
+                const whatsappBtn = card.querySelector('.btn-whatsapp');
+                
+                if (viewBtn) {
+                    const handleViewClick = (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        viewProduct(product.id);
+                        return false;
+                    };
+                    viewBtn.addEventListener('click', handleViewClick, true);
+                    viewBtn.addEventListener('touchend', handleViewClick, true);
+                    viewBtn.addEventListener('touchstart', (e) => {
+                        e.stopPropagation();
+                    }, true);
+                }
+                
+                if (whatsappBtn) {
+                    const handleWhatsAppClick = (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        buyOnWhatsApp(product.id);
+                        return false;
+                    };
+                    whatsappBtn.addEventListener('click', handleWhatsAppClick, true);
+                    whatsappBtn.addEventListener('touchend', handleWhatsAppClick, true);
+                    whatsappBtn.addEventListener('touchstart', (e) => {
+                        e.stopPropagation();
+                    }, true);
+                }
             });
         }
 
@@ -4022,6 +4168,41 @@
                 showProductModal(product);
             }
         }
+        
+        // Função para comprar direto no WhatsApp
+        function buyOnWhatsApp(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            
+            const price = parseFloat(product.price || 0);
+            const discountPrice = (price * 0.95).toFixed(2).replace('.', ',');
+            const installments = 10;
+            const installmentValue = (price / installments).toFixed(2).replace('.', ',');
+            
+            let message = '🛍️ *CJ EMPÓRIUM*\n\n';
+            message += 'Olá! Tenho interesse neste produto:\n\n';
+            message += `*${product.name}*`;
+            if (product.brand) {
+                message += ` - ${product.brand}`;
+            }
+            message += `\n`;
+            message += `💰 *Preço:* R$ ${price.toFixed(2).replace('.', ',')}\n`;
+            message += `💳 R$ ${discountPrice} à vista com desconto\n`;
+            message += `📅 ou ${installments}x de R$ ${installmentValue} sem juros\n\n`;
+            message += `Gostaria de mais informações sobre este produto! 😊`;
+            
+            // Número do WhatsApp
+            const whatsappNumber = '5514997892790';
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+            
+            window.open(whatsappUrl, '_blank');
+            showToast('Redirecionando para o WhatsApp...', 'success');
+        }
+        
+        // Expor no window para onclick inline funcionar
+        window.viewProduct = viewProduct;
+        window.buyOnWhatsApp = buyOnWhatsApp;
         
         // Product Modal Functions
         function showProductModal(product) {
