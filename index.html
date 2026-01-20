@@ -96,7 +96,7 @@
         }
 
         .logo {
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             flex: 1;
@@ -106,12 +106,24 @@
             z-index: 1;
         }
         
+        @media (max-width: 968px) {
+            .logo {
+                display: flex !important;
+            }
+        }
+        
         .logo img {
             max-height: 60px;
             width: auto;
             height: auto;
             object-fit: contain;
-            display: block !important;
+            display: block;
+        }
+        
+        @media (max-width: 968px) {
+            .logo img {
+                max-height: 50px;
+            }
         }
 
         .logo:hover {
@@ -125,7 +137,7 @@
         /* Garantir que no desktop a logo nunca apareça */
         @media (min-width: 969px) {
             .logo {
-                display: flex !important;
+                display: none !important;
             }
             
             .menu-toggle {
@@ -902,16 +914,16 @@
         
         @media (max-width: 768px) {
             .products-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
                 max-width: 100%;
             }
         }
         
         @media (max-width: 480px) {
             .products-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
                 max-width: 100%;
             }
         }
@@ -942,13 +954,22 @@
                 pointer-events: none !important;
             }
             
-            .product-actions,
-            .product-actions *,
-            .btn-view-product,
-            .btn-whatsapp {
+            .product-actions {
                 pointer-events: auto !important;
                 z-index: 99999 !important;
                 position: relative !important;
+            }
+            
+            .product-actions *,
+            .btn-view-product,
+            .btn-whatsapp,
+            .btn-view-product *,
+            .btn-whatsapp * {
+                pointer-events: auto !important;
+                z-index: 99999 !important;
+                position: relative !important;
+                cursor: pointer !important;
+                -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3) !important;
             }
         }
         
@@ -1233,16 +1254,29 @@
         /* Garantir que botões sejam clicáveis no mobile */
         @media (max-width: 768px) {
             .product-card {
-                pointer-events: auto;
+                pointer-events: none !important;
             }
             
             .product-card * {
-                pointer-events: auto;
+                pointer-events: none !important;
             }
             
-            .product-actions * {
+            .product-actions {
                 pointer-events: auto !important;
-                z-index: 1001 !important;
+                z-index: 99999 !important;
+                position: relative !important;
+            }
+            
+            .product-actions *,
+            .btn-view-product,
+            .btn-whatsapp,
+            .btn-view-product *,
+            .btn-whatsapp * {
+                pointer-events: auto !important;
+                z-index: 99999 !important;
+                position: relative !important;
+                cursor: pointer !important;
+                -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3) !important;
             }
         }
         
@@ -2199,7 +2233,10 @@
             
             .logo {
                 display: flex !important;
-                flex: 0 0 auto;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 1;
             }
             
             .logo img {
@@ -2215,6 +2252,10 @@
                 align-items: center;
                 justify-content: center;
                 order: 1;
+                pointer-events: auto !important;
+                z-index: 1001 !important;
+                cursor: pointer !important;
+                touch-action: manipulation;
             }
             
             .header-actions {
@@ -2374,11 +2415,15 @@
             }
 
             .logo {
-                display: none !important; /* Logo não aparece no header mobile, só no menu hambúrguer */
+                display: flex !important; /* Logo aparece no header mobile */
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 1;
             }
             
             .logo img {
-                height: 45px;
+                max-height: 50px;
             }
 
             .header {
@@ -2514,8 +2559,8 @@
             }
 
             .products-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
             }
 
             .product-card {
@@ -2931,7 +2976,7 @@
     <header class="header" id="header">
         <div class="header-content">
             <!-- Logo removida completamente do header - só aparece no menu hambúrguer mobile -->
-            <button class="menu-toggle" onclick="toggleMobileMenu()">
+            <button class="menu-toggle" onclick="return toggleMobileMenu(event);" type="button">
                 <i class="fas fa-bars"></i>
             </button>
             
@@ -3335,14 +3380,15 @@
         let cart = JSON.parse(localStorage.getItem('loja_cart') || '[]');
         let currentFilter = 'all';
         
-        // EXPOR FUNÇÕES NO WINDOW IMEDIATAMENTE - ANTES DE QUALQUER OUTRA COISA
+        // FUNÇÕES GLOBAIS - MESMA LÓGICA DO CARRINHO E MENU
+        // EXPOR NO WINDOW PARA GARANTIR FUNCIONAMENTO
         window.viewProduct = function(productId) {
             console.log('🔵 viewProduct chamado - ID:', productId);
             const product = allProducts.find(p => p.id === productId);
             if (product) {
                 showProductModal(product);
             } else {
-                console.error('❌ Produto não encontrado:', productId, 'Total produtos:', allProducts.length);
+                console.error('❌ Produto não encontrado:', productId);
             }
         };
         
@@ -3350,7 +3396,6 @@
             console.log('🟢 buyOnWhatsApp chamado - ID:', productId);
             const product = allProducts.find(p => p.id === productId);
             if (!product) {
-                console.error('❌ Produto não encontrado:', productId);
                 alert('Produto não encontrado!');
                 return;
             }
@@ -3381,11 +3426,6 @@
                 showToast('Redirecionando para o WhatsApp...', 'success');
             }
         };
-        
-        console.log('✅ Funções expostas no window:', {
-            viewProduct: typeof window.viewProduct,
-            buyOnWhatsApp: typeof window.buyOnWhatsApp
-        });
 
         // Header scroll effect
         window.addEventListener('scroll', () => {
@@ -3470,20 +3510,31 @@
         }
 
         // Mobile menu toggle
-        function toggleMobileMenu() {
+        function toggleMobileMenu(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            console.log('🔵 toggleMobileMenu chamado');
+            
             const navMenu = document.getElementById('nav-menu');
             const menuToggle = document.querySelector('.menu-toggle');
             const overlay = document.getElementById('mobile-menu-overlay');
             const body = document.body;
             
             if (!navMenu) {
-                console.error('nav-menu não encontrado');
-                return;
+                console.error('❌ nav-menu não encontrado');
+                return false;
             }
+            
+            console.log('Menu antes:', navMenu.classList.contains('active'));
             
             navMenu.classList.toggle('active');
             if (menuToggle) menuToggle.classList.toggle('active');
             if (overlay) overlay.classList.toggle('active');
+            
+            console.log('Menu depois:', navMenu.classList.contains('active'));
             
             // Prevenir scroll do body quando menu está aberto
             if (navMenu.classList.contains('active')) {
@@ -3491,10 +3542,51 @@
             } else {
                 body.style.overflow = '';
             }
+            
+            return false;
         }
         
         // Expor no window para garantir funcionamento
         window.toggleMobileMenu = toggleMobileMenu;
+        
+        // Adicionar event listener quando DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setupMenuButton();
+            });
+        } else {
+            setupMenuButton();
+        }
+        
+        function setupMenuButton() {
+            const menuToggleBtn = document.querySelector('.menu-toggle');
+            if (menuToggleBtn) {
+                // Remover listeners anteriores
+                const newBtn = menuToggleBtn.cloneNode(true);
+                menuToggleBtn.parentNode.replaceChild(newBtn, menuToggleBtn);
+                
+                // Adicionar novo listener
+                newBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🟢 Click no botão detectado');
+                    toggleMobileMenu(e);
+                    return false;
+                }, true);
+                
+                newBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🟢 Touch no botão detectado');
+                    toggleMobileMenu(e);
+                    return false;
+                }, true);
+                
+                console.log('✅ Event listeners adicionados ao menu-toggle');
+            } else {
+                console.warn('⚠️ Botão menu-toggle não encontrado');
+            }
+        }
 
         function closeMobileMenu() {
             const navMenu = document.getElementById('nav-menu');
@@ -3825,8 +3917,6 @@
                 return;
             }
             
-            // Remover delegação de eventos - usar apenas onclick inline
-
             filteredProducts.forEach(product => {
                 const price = parseFloat(product.price || 0);
                 const brand = product.brand || '';
@@ -3876,10 +3966,10 @@
                             ou ${installments}x de R$ ${installmentValue} sem juros
                         </div>
                         <div class="product-actions">
-                            <button class="btn-view-product" onclick="window.viewProduct && window.viewProduct(${product.id});" ontouchend="window.viewProduct && window.viewProduct(${product.id});">
+                            <button class="btn-view-product" type="button" data-product-id="${product.id}">
                                 Ver produtos
                             </button>
-                            <button class="btn-whatsapp" onclick="window.buyOnWhatsApp && window.buyOnWhatsApp(${product.id});" ontouchend="window.buyOnWhatsApp && window.buyOnWhatsApp(${product.id});">
+                            <button class="btn-whatsapp" type="button" data-product-id="${product.id}">
                                 <i class="fab fa-whatsapp"></i>
                                 Comprar no WhatsApp
                             </button>
@@ -3887,13 +3977,64 @@
                     </div>
                 `;
                 
+                // ADICIONAR EVENT LISTENERS DIRETAMENTE NOS BOTÕES
+                const viewBtn = card.querySelector('.btn-view-product');
+                const whatsappBtn = card.querySelector('.btn-whatsapp');
+                
+                if (viewBtn) {
+                    viewBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        console.log('✅ CLICK VER PRODUTOS - ID:', product.id);
+                        if (window.viewProduct) {
+                            window.viewProduct(product.id);
+                        } else {
+                            console.error('❌ window.viewProduct não existe');
+                        }
+                        return false;
+                    }, true);
+                    
+                    viewBtn.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        console.log('✅ TOUCH VER PRODUTOS - ID:', product.id);
+                        if (window.viewProduct) {
+                            window.viewProduct(product.id);
+                        }
+                        return false;
+                    }, true);
+                }
+                
+                if (whatsappBtn) {
+                    whatsappBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        console.log('✅ CLICK WHATSAPP - ID:', product.id);
+                        if (window.buyOnWhatsApp) {
+                            window.buyOnWhatsApp(product.id);
+                        } else {
+                            console.error('❌ window.buyOnWhatsApp não existe');
+                        }
+                        return false;
+                    }, true);
+                    
+                    whatsappBtn.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        console.log('✅ TOUCH WHATSAPP - ID:', product.id);
+                        if (window.buyOnWhatsApp) {
+                            window.buyOnWhatsApp(product.id);
+                        }
+                        return false;
+                    }, true);
+                }
+                
                 grid.appendChild(card);
                 observer.observe(card);
-                
-                // Garantir que funções estejam disponíveis
-                if (!window.viewProduct || !window.buyOnWhatsApp) {
-                    console.warn('Funções não estão disponíveis no window');
-                }
             });
         }
 
@@ -4183,15 +4324,7 @@
             }, 3000);
         }
 
-        // Função auxiliar para abrir modal pelo ID
-        function viewProduct(productId) {
-            const product = allProducts.find(p => p.id === productId);
-            if (product) {
-                showProductModal(product);
-            }
-        }
-        
-        // Funções já estão expostas no início do script - não precisa duplicar
+        // Funções já estão expostas no window no início do script
         
         // Product Modal Functions
         function showProductModal(product) {
