@@ -3326,6 +3326,7 @@
                 <div class="search-box">
                     <input type="text" class="search-input" id="search-input" placeholder="Buscar por nome ou marca...">
                     <button class="btn-primary" id="search-btn" onclick="console.log('🔥 ONCLICK EXECUTADO!'); if(window.searchProducts){console.log('Função encontrada!'); window.searchProducts();}else{console.error('Função NÃO encontrada!'); alert('Função não encontrada!');}" style="padding: 15px 30px;">
+                    <button class="btn-primary" id="search-btn" onclick="searchProducts()" style="padding: 15px 30px;">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -4602,6 +4603,7 @@
                 console.error('❌ search-input não encontrado!');
                 return;
             }
+            if (!searchInput) return;
             
             const searchTerm = searchInput.value.toLowerCase().trim();
             console.log('🔍 Buscando produtos com termo:', searchTerm);
@@ -4618,10 +4620,37 @@
                 const brand = (product.brand || '').toLowerCase();
                 const matches = name.includes(searchTerm) || brand.includes(searchTerm);
                 return matches;
+                
+                // Busca também na fragrância/descrição
+                let fragrance = '';
+                if (product.fragrance) {
+                    if (typeof product.fragrance === 'string' && product.fragrance.startsWith('{')) {
+                        try {
+                            const fragObj = JSON.parse(product.fragrance);
+                            fragrance = Object.values(fragObj).join(' ').toLowerCase();
+                        } catch (e) {
+                            fragrance = product.fragrance.toLowerCase();
+                        }
+                    } else if (typeof product.fragrance === 'object') {
+                        fragrance = JSON.stringify(product.fragrance).toLowerCase();
+                    } else {
+                        fragrance = String(product.fragrance).toLowerCase();
+                    }
+                }
+
+                return name.includes(searchTerm) || 
+                       brand.includes(searchTerm) || 
+                       fragrance.includes(searchTerm);
             });
 
             console.log(`✅ ${filteredProducts.length} produtos encontrados na busca`);
             renderProducts();
+            
+            // Rolar até os resultados
+            const productsSection = document.getElementById('produtos');
+            if (productsSection) {
+                productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
         // Expor imediatamente
         window.searchProducts = searchProducts;
