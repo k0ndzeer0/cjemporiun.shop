@@ -886,7 +886,7 @@
 
         /* Products Section */
         .exclusive-offer-section {
-            padding: 40px 20px;
+            padding: 20px 20px;
             background: rgba(10, 10, 10, 0.95);
             position: relative;
             overflow: hidden;
@@ -989,7 +989,7 @@
 
         @media (max-width: 768px) {
             .exclusive-offer-section {
-                padding: 30px 15px;
+                padding: 15px 15px;
             }
 
             .exclusive-offer-title {
@@ -1034,19 +1034,49 @@
             margin-bottom: 10px;
         }
 
+        .search-section-wrapper {
+            padding: 20px 20px;
+            background: rgba(10, 10, 10, 0.95);
+            position: relative;
+        }
+
+        .search-section-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://zpqtcrfygjtjtacufgbv.supabase.co/storage/v1/object/public/logos/Design%20sem%20nome%20(12).png') center/cover no-repeat;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .search-section-wrapper > * {
+            position: relative;
+            z-index: 1;
+        }
+
         .search-section {
             background: var(--bg-card);
             padding: 20px;
             border-radius: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 0;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             width: 100%;
             box-sizing: border-box;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         @media (max-width: 768px) {
+            .search-section-wrapper {
+                padding: 15px 15px;
+            }
+
             .search-section {
-                padding: 20px 15px;
+                padding: 15px 15px;
             }
         }
 
@@ -3236,6 +3266,23 @@
         </div>
     </section>
 
+    <!-- Search Section -->
+    <section class="search-section-wrapper" style="padding: 20px 20px; background: rgba(10, 10, 10, 0.95); position: relative;">
+        <div class="section-container">
+            <div class="products-header" style="margin-bottom: 15px;">
+                <h2 class="section-title">Nossos Produtos Exclusivos</h2>
+            </div>
+            <div class="search-section">
+                <div class="search-box">
+                    <input type="text" class="search-input" id="search-input" placeholder="Buscar por nome ou marca...">
+                    <button class="btn-primary" id="search-btn" onclick="console.log('🔥 ONCLICK EXECUTADO!'); if(window.searchProducts){console.log('Função encontrada!'); window.searchProducts();}else{console.error('Função NÃO encontrada!'); alert('Função não encontrada!');}" style="padding: 15px 30px;">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Oferta Exclusiva CTA Section -->
     <section class="exclusive-offer-section">
         <div class="section-container">
@@ -3267,19 +3314,6 @@
     <!-- Products Section -->
     <section class="products-section" id="produtos">
         <div class="section-container">
-            <div class="products-header">
-                <h2 class="section-title">Nossos Produtos Exclusivos</h2>
-            </div>
-
-            <div class="search-section">
-                <div class="search-box">
-                    <input type="text" class="search-input" id="search-input" placeholder="Buscar por nome ou marca...">
-                    <button class="btn-primary" id="search-btn" onclick="console.log('🔥 ONCLICK EXECUTADO!'); if(window.searchProducts){console.log('Função encontrada!'); window.searchProducts();}else{console.error('Função NÃO encontrada!'); alert('Função não encontrada!');}" style="padding: 15px 30px;">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-
             <div class="products-grid" id="products-grid">
                 <!-- Products will be loaded here -->
             </div>
@@ -5308,4 +5342,3 @@
     </script>
 </body>
 </html>
-a
