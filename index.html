@@ -3155,6 +3155,56 @@
             }
         }
 
+        /* WhatsApp Float */
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 40px;
+            right: 40px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 1900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            animation: pulse-green 2s infinite;
+        }
+
+        .whatsapp-float:hover {
+            background-color: #128C7E;
+            transform: scale(1.1);
+            color: white;
+        }
+
+        @keyframes pulse-green {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(37, 211, 102, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .whatsapp-float {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                right: 20px;
+                font-size: 25px;
+            }
+        }
+
         /* Scroll Animation */
         .fade-in {
             opacity: 0;
@@ -3601,6 +3651,11 @@
 
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
+
+    <!-- WhatsApp Float Button -->
+    <a href="https://wa.me/5514997892790" class="whatsapp-float" target="_blank" title="Fale conosco no WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
 
     <script>
         // Data
@@ -4083,7 +4138,7 @@
                     console.log('🗑️ Cache limpo, forçando recarregamento do Supabase');
                 }
                 
-                const url = `${SUPABASE_CONFIG.url}/rest/v1/products?is_active=eq.true&order=created_at.desc`;
+                const url = `${SUPABASE_CONFIG.url}/rest/v1/products?is_active=eq.true&order=display_order.asc,created_at.desc`;
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -4113,6 +4168,7 @@
                     price: parseFloat(p.price),
                     cost: p.cost ? parseFloat(p.cost) : null,
                     stock: p.stock_quantity || 0,
+                    display_order: p.display_order !== null ? p.display_order : 999,
                     stock_quantity: p.stock_quantity || 0,
                     image: p.image_url || p.image_base64 || null,
                     image_url: p.image_url,
@@ -4157,6 +4213,14 @@
                 
                 if (supabaseProducts && supabaseProducts.length > 0) {
                     allProducts = supabaseProducts;
+                    
+                    // Garantir ordenação correta no frontend também
+                    allProducts.sort((a, b) => {
+                        const orderA = a.display_order !== undefined ? a.display_order : 999;
+                        const orderB = b.display_order !== undefined ? b.display_order : 999;
+                        return (orderA - orderB) || (new Date(b.created_at || 0) - new Date(a.created_at || 0));
+                    });
+                    
                     filteredProducts = [...allProducts];
                     console.log(`✅ ${allProducts.length} produtos carregados do Supabase`);
                     
@@ -4304,8 +4368,8 @@
                     discount = Math.round(parseFloat(product.discount_percentage));
                     badgeText = `-${discount}%`;
                 } else if (isNovelty) {
-                    // Produto novidade - mostrar "NOVIDADE"
-                    badgeText = 'NOVIDADE';
+                    // Produto novidade - mostrar "POPULAR"
+                    badgeText = 'POPULAR';
                 } else if (cost && price > 0) {
                     // Fallback: calcular desconto baseado na margem (sistema antigo)
                     discount = Math.round(((price - cost) / price) * 100);
@@ -4320,7 +4384,7 @@
                 return `
                     <div class="exclusive-offer-card" style="background: #000000; border-radius: 15px; overflow: hidden; position: relative; border: 2px solid var(--primary-color); transition: transform 0.3s ease, box-shadow 0.3s ease;">
                         ${badgeText ? `
-                            <div style="position: absolute; top: 15px; right: 15px; background: var(--primary-color); color: #000; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; z-index: 2; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);">
+                            <div style="position: absolute; top: 10px; right: 10px; background: var(--primary-color); color: #000; padding: 5px 10px; border-radius: 20px; font-weight: bold; font-size: 11px; z-index: 2; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);">
                                 ${badgeText}
                             </div>
                         ` : ''}
