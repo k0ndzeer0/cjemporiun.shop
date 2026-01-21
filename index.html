@@ -88,27 +88,59 @@
             margin: 0 auto;
             padding: 0 30px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
             gap: 20px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             position: relative;
-        }
-
-        .logo {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1;
+            width: 100%;
         }
         
+        /* Desktop Layout: Logo | Menu (centro) | Carrinho */
+        @media (min-width: 969px) {
+            .header-content {
+                justify-content: space-between;
+            }
+        }
+        
+        /* Mobile Layout: Menu Toggle | Logo (centro) | Carrinho */
+        @media (max-width: 968px) {
+            .header-content {
+                justify-content: space-between;
+                padding: 0 15px;
+            }
+        }
+
+        /* Logo - Desktop: à esquerda, Mobile: centralizada */
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            z-index: 1;
+            transition: transform 0.3s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        /* Desktop: Logo à esquerda */
+        @media (min-width: 969px) {
+            .logo {
+                order: 1;
+                position: relative;
+                left: 0;
+                transform: none;
+                justify-content: flex-start;
+            }
+        }
+        
+        /* Mobile: Logo centralizada */
         @media (max-width: 968px) {
             .logo {
-                display: flex !important;
+                order: 2;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                justify-content: center;
             }
         }
         
@@ -118,6 +150,7 @@
             height: auto;
             object-fit: contain;
             display: block;
+            transition: filter 0.3s;
         }
         
         @media (max-width: 968px) {
@@ -129,23 +162,29 @@
         .logo:hover {
             transform: scale(1.05);
         }
+        
+        @media (max-width: 968px) {
+            .logo:hover {
+                transform: translateX(-50%) scale(1.05);
+            }
+        }
 
         .logo:hover img {
             filter: drop-shadow(0 4px 20px rgba(212, 175, 55, 0.5));
         }
         
-        /* Garantir que no desktop a logo nunca apareça */
+        /* Desktop - Menu no centro */
         @media (min-width: 969px) {
-            .logo {
-                display: none !important;
-            }
-            
             .menu-toggle {
                 display: none !important;
             }
             
             .nav-menu {
                 display: flex !important;
+                order: 2;
+                flex: 1;
+                justify-content: center;
+                margin: 0 auto;
             }
             
             /* Garantir que a logo do menu mobile não apareça no desktop */
@@ -331,8 +370,23 @@
             display: flex;
             align-items: center;
             gap: 20px;
-            order: 3;
-            margin-left: auto;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+        
+        /* Desktop e Mobile: carrinho sempre à direita */
+        @media (min-width: 969px) {
+            .header-actions {
+                order: 3;
+                margin-left: auto;
+            }
+        }
+        
+        @media (max-width: 968px) {
+            .header-actions {
+                order: 3;
+                margin-left: auto;
+            }
         }
 
         .cart-icon {
@@ -387,7 +441,22 @@
             transition: all 0.3s;
             z-index: 1001;
             position: relative;
-            order: 1;
+            flex-shrink: 0;
+        }
+        
+        /* Desktop: esconder menu toggle */
+        @media (min-width: 969px) {
+            .menu-toggle {
+                display: none !important;
+            }
+        }
+        
+        /* Mobile: menu toggle à esquerda */
+        @media (max-width: 968px) {
+            .menu-toggle {
+                order: 1;
+                display: flex !important;
+            }
         }
 
         .menu-toggle:hover {
@@ -1236,6 +1305,18 @@
             flex-direction: column;
             gap: 8px;
             margin-top: auto;
+            position: relative;
+            z-index: 10;
+            pointer-events: auto;
+        }
+        
+        .btn-view-product,
+        .btn-whatsapp {
+            position: relative;
+            z-index: 11;
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3);
         }
         
         @media (max-width: 768px) {
@@ -1244,12 +1325,24 @@
                 z-index: 1000;
                 pointer-events: auto !important;
             }
+            
+            .btn-view-product,
+            .btn-whatsapp {
+                z-index: 1001 !important;
+                pointer-events: auto !important;
+            }
         }
         
         @media (max-width: 480px) {
             .product-actions {
                 gap: 5px;
                 z-index: 1000;
+                pointer-events: auto !important;
+            }
+            
+            .btn-view-product,
+            .btn-whatsapp {
+                z-index: 1001 !important;
                 pointer-events: auto !important;
             }
         }
@@ -2935,17 +3028,36 @@
     </style>
 </head>
 <body>
+    <!-- SCRIPT URGENTE - Garantir que botões funcionem -->
+    <script>
+        // Criar funções placeholder que serão substituídas depois
+        window.searchProducts = function() {
+            console.log('⚠️ searchProducts chamada mas ainda não definida!');
+            alert('Aguarde, carregando...');
+        };
+        window.filterProducts = function(filter, event) {
+            console.log('⚠️ filterProducts chamada mas ainda não definida!', filter);
+            alert('Aguarde, carregando...');
+        };
+        window.filterByCategory = function(category, event) {
+            console.log('⚠️ filterByCategory chamada mas ainda não definida!', category);
+            alert('Aguarde, carregando...');
+        };
+        console.log('✅ Funções placeholder criadas');
+    </script>
+    
     <!-- Header -->
     <header class="header" id="header">
         <div class="header-content">
-            <!-- Logo removida completamente do header - só aparece no menu hambúrguer mobile -->
+            <!-- Menu Toggle (Mobile) -->
             <button class="menu-toggle" onclick="return toggleMobileMenu(event);" type="button">
                 <i class="fas fa-bars"></i>
             </button>
             
-            <div class="logo">
+            <!-- Logo: Desktop (esquerda) | Mobile (centro) -->
+            <a href="#hero" class="logo" onclick="closeMobileMenu();">
                 <img src="https://zpqtcrfygjtjtacufgbv.supabase.co/storage/v1/object/public/logos/LOGO%20SEM%20FUNDO.png" alt="CJ Empórium Logo">
-            </div>
+            </a>
             
             <div class="header-actions">
                 <div class="cart-icon" onclick="toggleCart()">
@@ -2960,32 +3072,32 @@
                 </div>
                 <a href="#hero" class="nav-item active">Início</a>
                 <div class="nav-item-dropdown">
-                    <div class="dropdown-toggle" onclick="toggleDropdown(event)">
+                    <div class="dropdown-toggle" id="dropdown-toggle">
                         Perfumes
                     </div>
                     <div class="dropdown-menu" id="perfumes-dropdown">
-<a href="#produtos" class="dropdown-item" onclick="filterByCategory('masculino', event)">
+                        <a href="#produtos" class="dropdown-item" onclick="if(window.filterByCategory){window.filterByCategory('masculino',event);}else{alert('Função não encontrada!');} return false;">
                             <i class="fas fa-mars"></i> Masculino
                         </a>
-                        <a href="#produtos" class="dropdown-item" onclick="filterByCategory('feminino', event)">
+                        <a href="#produtos" class="dropdown-item" onclick="if(window.filterByCategory){window.filterByCategory('feminino',event);}else{alert('Função não encontrada!');} return false;">
                             <i class="fas fa-venus"></i> Feminino
                         </a>
-                        <a href="#produtos" class="dropdown-item" onclick="filterByCategory('unissex', event)">
+                        <a href="#produtos" class="dropdown-item" onclick="if(window.filterByCategory){window.filterByCategory('unissex',event);}else{alert('Função não encontrada!');} return false;">
                             <i class="fas fa-venus-mars"></i> Unissex
                         </a>
-                        <a href="#produtos" class="dropdown-item" onclick="filterByCategory('body-splash', event)">
+                        <a href="#produtos" class="dropdown-item" onclick="if(window.filterByCategory){window.filterByCategory('body-splash',event);}else{alert('Função não encontrada!');} return false;">
                             <i class="fas fa-spray-can"></i> Body Splash
                         </a>
-                        <a href="#produtos" class="dropdown-item" onclick="filterByCategory('perfume-spray', event)">
+                        <a href="#produtos" class="dropdown-item" onclick="if(window.filterByCategory){window.filterByCategory('perfume-spray',event);}else{alert('Função não encontrada!');} return false;">
                             <i class="fas fa-flask"></i> Perfume Spray
                         </a>
-                        <a href="#produtos" class="dropdown-item" onclick="filterByCategory('creme-hidratante', event)">
+                        <a href="#produtos" class="dropdown-item" onclick="if(window.filterByCategory){window.filterByCategory('creme-hidratante',event);}else{alert('Função não encontrada!');} return false;">
                             <i class="fas fa-pump-soap"></i> Creme Hidratante Perfumado
                         </a>
                     </div>
                 </div>
-                <a href="#produtos" class="nav-item" onclick="filterProducts('ofertas', event)">Ofertas</a>
-                <a href="#produtos" class="nav-item" onclick="filterProducts('popular', event)">Mais Vendidos</a>
+                <a href="#produtos" class="nav-item" onclick="if(window.filterProducts){window.filterProducts('ofertas',event);}else{alert('Função não encontrada!');} return false;">Ofertas</a>
+                <a href="#produtos" class="nav-item" onclick="if(window.filterProducts){window.filterProducts('popular',event);}else{alert('Função não encontrada!');} return false;">Mais Vendidos</a>
                 <a href="#beneficios" class="nav-item">Sobre Nós</a>
                 <a href="#contato" class="nav-item">Contato</a>
             </nav>
@@ -3023,7 +3135,7 @@
             <div class="search-section">
                 <div class="search-box">
                     <input type="text" class="search-input" id="search-input" placeholder="Buscar por nome ou marca...">
-                    <button class="btn-primary" onclick="searchProducts()" style="padding: 15px 30px;">
+                    <button class="btn-primary" id="search-btn" onclick="console.log('🔥 ONCLICK EXECUTADO!'); if(window.searchProducts){console.log('Função encontrada!'); window.searchProducts();}else{console.error('Função NÃO encontrada!'); alert('Função não encontrada!');}" style="padding: 15px 30px;">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -3402,9 +3514,7 @@
             }
         }
         
-        // Expor no window também para compatibilidade
-        window.viewProduct = viewProduct;
-        window.buyOnWhatsApp = buyOnWhatsApp;
+        // Funções serão expostas no window no final do script (após todas as definições)
 
         // Header scroll effect
         window.addEventListener('scroll', () => {
@@ -3740,6 +3850,8 @@
             };
             showToast(`Mostrando ${categoryNames[category] || category}`, 'success');
         }
+        // Expor imediatamente
+        window.filterByCategory = filterByCategory;
 
         // Update active nav on scroll
         window.addEventListener('scroll', () => {
@@ -3957,11 +4069,11 @@
                             ou ${installments}x de R$ ${installmentValue} sem juros
                         </div>
                         <div class="product-actions">
-                            <button class="btn-view-product" type="button" data-product-id="${product.id}" onclick="event.stopPropagation(); viewProduct(${product.id}); return false;">
+                            <button class="btn-view-product" type="button" data-product-id="${product.id}">
                                 <i class="fas fa-eye"></i>
                                 Ver Produto
                             </button>
-                            <button class="btn-whatsapp" type="button" data-product-id="${product.id}" onclick="event.stopPropagation(); buyOnWhatsApp(${product.id}); return false;">
+                            <button class="btn-whatsapp" type="button" data-product-id="${product.id}">
                                 <i class="fab fa-whatsapp"></i>
                                 Comprar no WhatsApp
                             </button>
@@ -3969,61 +4081,90 @@
                     </div>
                 `;
                 
-                // Adicionar evento de clique no card (exceto nos botões)
+                // Adicionar card ao grid PRIMEIRO
+                newGrid.appendChild(card);
+                
+                // Agora adicionar eventos nos botões (após estar no DOM)
+                const viewBtn = card.querySelector('.btn-view-product');
+                const whatsappBtn = card.querySelector('.btn-whatsapp');
+                
+                // Criar funções wrapper locais para garantir acesso
+                const handleViewProduct = function(e) {
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                    }
+                    console.log('✅ Click/Touch no botão Ver Produto - ID:', product.id);
+                    const prodId = parseInt(product.id);
+                    if (window.viewProduct) {
+                        window.viewProduct(prodId);
+                    } else if (typeof viewProduct === 'function') {
+                        viewProduct(prodId);
+                    } else {
+                        console.error('❌ viewProduct não está disponível!');
+                        alert('Erro: função não disponível. Recarregue a página.');
+                    }
+                    return false;
+                };
+                
+                const handleWhatsApp = function(e) {
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                    }
+                    console.log('✅ Click/Touch no botão WhatsApp - ID:', product.id);
+                    const prodId = parseInt(product.id);
+                    if (window.buyOnWhatsApp) {
+                        window.buyOnWhatsApp(prodId);
+                    } else if (typeof buyOnWhatsApp === 'function') {
+                        buyOnWhatsApp(prodId);
+                    } else {
+                        console.error('❌ buyOnWhatsApp não está disponível!');
+                        alert('Erro: função não disponível. Recarregue a página.');
+                    }
+                    return false;
+                };
+                
+                if (viewBtn) {
+                    // Adicionar múltiplos tipos de eventos
+                    viewBtn.onclick = handleViewProduct;
+                    viewBtn.addEventListener('click', handleViewProduct, { capture: true, passive: false });
+                    viewBtn.addEventListener('touchend', handleViewProduct, { capture: true, passive: false });
+                    viewBtn.addEventListener('touchstart', function(e) {
+                        e.stopPropagation();
+                    }, { capture: true });
+                }
+                
+                if (whatsappBtn) {
+                    // Adicionar múltiplos tipos de eventos
+                    whatsappBtn.onclick = handleWhatsApp;
+                    whatsappBtn.addEventListener('click', handleWhatsApp, { capture: true, passive: false });
+                    whatsappBtn.addEventListener('touchend', handleWhatsApp, { capture: true, passive: false });
+                    whatsappBtn.addEventListener('touchstart', function(e) {
+                        e.stopPropagation();
+                    }, { capture: true });
+                }
+                
+                // Adicionar evento de clique no card (exceto nos botões) - DEPOIS dos botões
+                // Usar capture: false para que os botões tenham prioridade
                 card.style.cursor = 'pointer';
                 card.addEventListener('click', function(e) {
                     // Se clicou em um botão ou dentro de product-actions, não fazer nada
-                    if (e.target.closest('.btn-view-product, .btn-whatsapp, .product-actions')) {
+                    const clickedButton = e.target.closest('.btn-view-product, .btn-whatsapp');
+                    if (clickedButton) {
+                        // Deixar o botão lidar com o evento
+                        return;
+                    }
+                    // Se clicou dentro de product-actions mas não no botão, não fazer nada
+                    if (e.target.closest('.product-actions')) {
                         return;
                     }
                     // Caso contrário, abrir modal
                     showProductModal(product);
                 }, false);
                 
-                // Adicionar listeners diretos nos botões após inserir no DOM
-                setTimeout(() => {
-                    const viewBtn = card.querySelector('.btn-view-product');
-                    const whatsappBtn = card.querySelector('.btn-whatsapp');
-                    
-                    if (viewBtn) {
-                        viewBtn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('✅ Click direto no botão Ver Produto - ID:', product.id);
-                            viewProduct(product.id);
-                            return false;
-                        }, true);
-                        
-                        viewBtn.addEventListener('touchend', function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('✅ Touch direto no botão Ver Produto - ID:', product.id);
-                            viewProduct(product.id);
-                            return false;
-                        }, true);
-                    }
-                    
-                    if (whatsappBtn) {
-                        whatsappBtn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('✅ Click direto no botão WhatsApp - ID:', product.id);
-                            buyOnWhatsApp(product.id);
-                            return false;
-                        }, true);
-                        
-                        whatsappBtn.addEventListener('touchend', function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('✅ Touch direto no botão WhatsApp - ID:', product.id);
-                            buyOnWhatsApp(product.id);
-                            return false;
-                        }, true);
-                    }
-                }, 100);
-                
-                // Adicionar card ao grid
-                newGrid.appendChild(card);
                 observer.observe(card);
             });
         }
@@ -4056,6 +4197,8 @@
 
             renderProducts();
         }
+        // Expor imediatamente
+        window.searchProducts = searchProducts;
 
         // Filter products
         function filterProducts(filter, event) {
@@ -4119,6 +4262,8 @@
                 }
             }
         }
+        // Expor imediatamente
+        window.filterProducts = filterProducts;
 
         // Cart functions
         function addToCart(productId) {
@@ -4505,14 +4650,45 @@
             });
         }
 
-        // Initialize
+        // Expor todas as funções no window para compatibilidade (após todas as definições)
+        window.viewProduct = viewProduct;
+        window.buyOnWhatsApp = buyOnWhatsApp;
+        window.searchProducts = searchProducts;
+        window.filterProducts = filterProducts;
+        window.filterByCategory = filterByCategory;
+        window.addToCart = addToCart;
+        window.updateCartQuantity = updateCartQuantity;
+        window.setCartQuantity = setCartQuantity;
+        window.removeFromCart = removeFromCart;
+        window.checkout = checkout;
+        window.toggleCart = toggleCart;
+        window.closeProductModal = closeProductModal;
+        window.closeMobileMenu = closeMobileMenu;
+        window.toggleDropdown = toggleDropdown;
+        window.toggleMobileMenu = toggleMobileMenu;
+        window.showProductModal = showProductModal;
+        window.showToast = showToast;
+
+        // Debug: Verificar se todas as funções estão disponíveis
         console.log('🚀 Inicializando aplicação...');
         console.log('🔍 Verificando funções:', {
-            loadProducts: typeof loadProducts,
-            updateCartUI: typeof updateCartUI,
-            renderProducts: typeof renderProducts,
-            setupProductGridEvents: typeof setupProductGridEvents
+            searchProducts: typeof searchProducts,
+            filterProducts: typeof filterProducts,
+            filterByCategory: typeof filterByCategory,
+            addToCart: typeof addToCart,
+            updateCartQuantity: typeof updateCartQuantity,
+            removeFromCart: typeof removeFromCart,
+            checkout: typeof checkout,
+            viewProduct: typeof viewProduct,
+            buyOnWhatsApp: typeof buyOnWhatsApp
         });
+        
+        // Garantir que funções estejam acessíveis globalmente
+        if (typeof searchProducts !== 'undefined') {
+            console.log('✅ searchProducts definida');
+        } else {
+            console.error('❌ searchProducts NÃO definida!');
+        }
         
         try {
             loadProducts();
@@ -4534,6 +4710,423 @@
         } catch (error) {
             console.error('❌ Erro ao inicializar dropdown listeners:', error);
         }
+        
+        // EVENT DELEGATION GLOBAL - Backup para botões dinâmicos (carrinho, etc)
+        document.addEventListener('click', function(e) {
+            try {
+                const target = e.target;
+                const button = target.closest('button, a');
+                
+                if (!button) return;
+                
+                // Botões do carrinho - quantidade (criados dinamicamente)
+                if (button.classList.contains('quantity-btn')) {
+                    const onclick = button.getAttribute('onclick');
+                    if (onclick) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const match = onclick.match(/updateCartQuantity\((\d+),\s*([+-]?\d+)\)/);
+                        if (match) {
+                            console.log('🛒 Atualizar quantidade:', match[1], match[2]);
+                            updateCartQuantity(parseInt(match[1]), parseInt(match[2]));
+                        }
+                    }
+                    return false;
+                }
+                
+                // Botão remover do carrinho (criado dinamicamente)
+                if (button.classList.contains('remove-item')) {
+                    const onclick = button.getAttribute('onclick');
+                    if (onclick) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const match = onclick.match(/removeFromCart\((\d+)\)/);
+                        if (match) {
+                            console.log('🛒 Remover do carrinho:', match[1]);
+                            removeFromCart(parseInt(match[1]));
+                        }
+                    }
+                    return false;
+                }
+                
+                // Botão de checkout
+                if (button.classList.contains('checkout-btn') || button.id === 'checkout-btn') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('💳 Checkout clicado');
+                    checkout();
+                    return false;
+                }
+                
+                // Botão de adicionar ao carrinho no modal (criado dinamicamente)
+                if (button.classList.contains('add-to-cart-btn')) {
+                    const onclick = button.getAttribute('onclick');
+                    if (onclick) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const match = onclick.match(/addToCart\((\d+)\)/);
+                        if (match) {
+                            console.log('🛒 Adicionar ao carrinho:', match[1]);
+                            addToCart(parseInt(match[1]));
+                            closeProductModal();
+                        }
+                    }
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Erro no event delegation:', error);
+            }
+        }, true);
+        
+        // FUNÇÃO SIMPLES E DIRETA - Adiciona listeners a TODOS os botões
+        function setupAllButtonListeners() {
+            try {
+                console.log('🔧 Configurando todos os botões...');
+                
+                // 1. Botão de busca
+                const searchBtn = document.getElementById('search-btn');
+                if (searchBtn) {
+                    searchBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('✅ Botão de busca clicado!');
+                        searchProducts();
+                    });
+                    console.log('✅ Botão de busca configurado');
+                }
+                
+                // 2. Input de busca - Enter key
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            console.log('✅ Enter pressionado na busca');
+                            searchProducts();
+                        }
+                    });
+                }
+                
+                // 3. Botões de filtro (Ofertas, Mais Vendidos)
+                document.querySelectorAll('.nav-item[data-filter]').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const filter = this.getAttribute('data-filter');
+                        console.log('✅ Filtro clicado:', filter);
+                        filterProducts(filter, e);
+                    });
+                });
+                console.log('✅ Botões de filtro configurados:', document.querySelectorAll('.nav-item[data-filter]').length);
+                
+                // 4. Botões de categoria do dropdown
+                document.querySelectorAll('.dropdown-item[data-category]').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const category = this.getAttribute('data-category');
+                        console.log('✅ Categoria clicada:', category);
+                        filterByCategory(category, e);
+                    });
+                });
+                console.log('✅ Botões de categoria configurados:', document.querySelectorAll('.dropdown-item[data-category]').length);
+                
+                // 5. Dropdown toggle
+                const dropdownToggle = document.getElementById('dropdown-toggle');
+                if (dropdownToggle) {
+                    dropdownToggle.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('✅ Dropdown toggle clicado');
+                        toggleDropdown(e);
+                    });
+                }
+                
+                console.log('✅✅✅ TODOS OS BOTÕES CONFIGURADOS COM SUCESSO!');
+            } catch (error) {
+                console.error('❌ Erro ao configurar botões:', error);
+                console.error('Stack:', error.stack);
+            }
+        }
+        
+        // Executar após DOM estar pronto e funções definidas
+        function initAllButtons() {
+            setupAllButtonListeners();
+        }
+        
+        // Executar quando DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('📄 DOM carregado, configurando botões...');
+                setTimeout(initAllButtons, 300);
+            });
+        } else {
+            console.log('📄 DOM já carregado, configurando botões...');
+            setTimeout(initAllButtons, 300);
+        }
+        
+        // Handler de erro global para capturar problemas
+        window.addEventListener('error', function(e) {
+            console.error('❌ ERRO GLOBAL:', e.error);
+            console.error('Arquivo:', e.filename, 'Linha:', e.lineno);
+        });
+        
+        // Teste final - verificar se tudo está funcionando
+        setTimeout(function() {
+            console.log('🧪 TESTE FINAL - Verificando funções:');
+            const functions = ['searchProducts', 'filterProducts', 'filterByCategory', 'addToCart', 'updateCartQuantity', 'removeFromCart', 'checkout', 'viewProduct', 'buyOnWhatsApp'];
+            functions.forEach(funcName => {
+                if (typeof window[funcName] === 'function') {
+                    console.log('✅', funcName, 'disponível');
+                } else {
+                    console.error('❌', funcName, 'NÃO disponível!');
+                }
+            });
+        }, 1000);
+    </script>
+    
+    <!-- SCRIPT ULTRA SIMPLES - Configura todos os botões -->
+    <script>
+        console.log('🚀 SCRIPT SIMPLES INICIADO');
+        
+        function configurarBotoes() {
+            console.log('🔧 Iniciando configuração de botões...');
+            console.log('Verificando funções disponíveis:', {
+                searchProducts: typeof window.searchProducts,
+                filterProducts: typeof window.filterProducts,
+                filterByCategory: typeof window.filterByCategory
+            });
+            
+            // Botão de busca - MÚLTIPLAS FORMAS DE GARANTIR QUE FUNCIONE
+            var btn = document.getElementById('search-btn');
+            if (btn) {
+                console.log('✅ Botão de busca encontrado, configurando...');
+                
+                // Remover qualquer listener anterior
+                var newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                btn = newBtn;
+                
+                // Método 1: onclick direto
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    console.log('🔥🔥🔥 BOTÃO DE BUSCA CLICADO (onclick)!');
+                    try {
+                        window.searchProducts();
+                    } catch(err) {
+                        console.error('Erro:', err);
+                        alert('Erro: ' + err.message);
+                    }
+                    return false;
+                };
+                
+                // Método 2: addEventListener (backup)
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    console.log('🔥🔥🔥 BOTÃO DE BUSCA CLICADO (addEventListener)!');
+                    try {
+                        window.searchProducts();
+                    } catch(err) {
+                        console.error('Erro:', err);
+                    }
+                    return false;
+                }, true);
+                
+                // Método 3: touchstart para mobile
+                btn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔥🔥🔥 BOTÃO DE BUSCA TOUCH (mobile)!');
+                    try {
+                        window.searchProducts();
+                    } catch(err) {
+                        console.error('Erro:', err);
+                    }
+                    return false;
+                }, true);
+                
+                console.log('✅ Botão de busca configurado com 3 métodos!');
+            } else {
+                console.error('❌ Botão de busca NÃO encontrado!');
+            }
+            
+            // Botões de filtro - MÚLTIPLOS MÉTODOS
+            var filtros = document.querySelectorAll('.nav-item[data-filter]');
+            console.log('Encontrados', filtros.length, 'botões de filtro');
+            filtros.forEach(function(b) {
+                var filter = b.getAttribute('data-filter');
+                
+                // onclick direto
+                b.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    console.log('🔥🔥🔥 FILTRO CLICADO (onclick):', filter);
+                    try {
+                        window.filterProducts(filter, e);
+                    } catch(err) {
+                        console.error('Erro:', err);
+                    }
+                    return false;
+                };
+                
+                // addEventListener backup
+                b.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔥🔥🔥 FILTRO CLICADO (listener):', filter);
+                    try {
+                        window.filterProducts(filter, e);
+                    } catch(err) {
+                        console.error('Erro:', err);
+                    }
+                }, true);
+            });
+            
+            // Botões de categoria - MÚLTIPLOS MÉTODOS
+            var cats = document.querySelectorAll('.dropdown-item[data-category]');
+            console.log('Encontrados', cats.length, 'botões de categoria');
+            cats.forEach(function(b) {
+                var category = b.getAttribute('data-category');
+                
+                // onclick direto
+                b.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    console.log('🔥🔥🔥 CATEGORIA CLICADA (onclick):', category);
+                    try {
+                        window.filterByCategory(category, e);
+                    } catch(err) {
+                        console.error('Erro:', err);
+                    }
+                    return false;
+                };
+                
+                // addEventListener backup
+                b.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔥🔥🔥 CATEGORIA CLICADA (listener):', category);
+                    try {
+                        window.filterByCategory(category, e);
+                    } catch(err) {
+                        console.error('Erro:', err);
+                    }
+                }, true);
+            });
+            
+            console.log('✅✅✅ CONFIGURAÇÃO CONCLUÍDA!');
+            
+            // TESTE FINAL - Verificar se os botões estão realmente configurados
+            setTimeout(function() {
+                var testBtn = document.getElementById('search-btn');
+                if (testBtn) {
+                    console.log('🧪 TESTE: Botão existe:', testBtn);
+                    console.log('🧪 TESTE: onclick definido?', typeof testBtn.onclick);
+                    
+                    // Teste manual
+                    console.log('🧪 TESTE: Tentando clicar programaticamente...');
+                    try {
+                        testBtn.click();
+                        console.log('✅ TESTE: click() executado');
+                    } catch(err) {
+                        console.error('❌ TESTE: Erro ao clicar:', err);
+                    }
+                }
+            }, 2000);
+        }
+        
+        // Tentar várias vezes até funcionar
+        if (document.readyState === 'complete') {
+            setTimeout(configurarBotoes, 100);
+            setTimeout(configurarBotoes, 500);
+            setTimeout(configurarBotoes, 1000);
+        } else {
+            window.addEventListener('load', function() {
+                setTimeout(configurarBotoes, 100);
+                setTimeout(configurarBotoes, 500);
+            });
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(configurarBotoes, 100);
+                setTimeout(configurarBotoes, 500);
+            });
+        }
+        
+        // REMOVIDO - Usando apenas onclick inline que é mais confiável
+        
+        console.log('✅ Interceptador global de cliques configurado!');
+        
+        // Verificar se os botões existem no DOM
+        setTimeout(function() {
+            console.log('🔍 VERIFICAÇÃO FINAL DOS BOTÕES:');
+            var searchBtn = document.getElementById('search-btn');
+            console.log('Botão de busca existe?', !!searchBtn);
+            if (searchBtn) {
+                console.log('Botão de busca:', searchBtn.outerHTML.substring(0, 100));
+            }
+            
+            var filterBtns = document.querySelectorAll('.nav-item[data-filter]');
+            console.log('Botões de filtro encontrados:', filterBtns.length);
+            filterBtns.forEach(function(b, i) {
+                console.log('Filtro', i + ':', b.getAttribute('data-filter'), b.textContent.trim());
+            });
+            
+            var catBtns = document.querySelectorAll('.dropdown-item[data-category]');
+            console.log('Botões de categoria encontrados:', catBtns.length);
+            catBtns.forEach(function(b, i) {
+                console.log('Categoria', i + ':', b.getAttribute('data-category'));
+            });
+        }, 3000);
+    </script>
+    
+    <!-- TESTE FINAL ULTRA SIMPLES -->
+    <script>
+        // Aguardar tudo carregar
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                console.log('🧪🧪🧪 TESTE FINAL ULTRA SIMPLES 🧪🧪🧪');
+                
+                // Teste 1: Verificar se funções existem
+                console.log('Teste 1 - Funções:', {
+                    searchProducts: typeof window.searchProducts,
+                    filterProducts: typeof window.filterProducts,
+                    filterByCategory: typeof window.filterByCategory
+                });
+                
+                // Teste 2: Verificar se botão existe
+                var btn = document.getElementById('search-btn');
+                console.log('Teste 2 - Botão existe?', !!btn);
+                
+                if (btn) {
+                    // Teste 3: Adicionar listener MUITO SIMPLES
+                    btn.addEventListener('click', function() {
+                        console.log('🎉🎉🎉 CLIQUE FUNCIONOU! 🎉🎉🎉');
+                        alert('CLIQUE FUNCIONOU!');
+                        if (window.searchProducts) {
+                            window.searchProducts();
+                        }
+                    });
+                    
+                    // Teste 4: Tentar clicar programaticamente
+                    console.log('Teste 4 - Clicando programaticamente...');
+                    btn.click();
+                }
+                
+                // Teste 5: Verificar onclick inline
+                if (btn && btn.onclick) {
+                    console.log('Teste 5 - onclick existe:', typeof btn.onclick);
+                } else {
+                    console.log('Teste 5 - onclick NÃO existe!');
+                }
+                
+                console.log('✅✅✅ TESTE FINAL CONCLUÍDO ✅✅✅');
+            }, 2000);
+        });
     </script>
 </body>
 </html>
