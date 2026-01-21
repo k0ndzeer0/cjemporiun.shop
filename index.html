@@ -472,7 +472,7 @@
         
         /* Overlay para fechar menu mobile */
         .mobile-menu-overlay {
-            display: none;
+            display: none; /* SEMPRE none por padrão - só aparece quando ativo */
             position: fixed;
             top: 0;
             left: 0;
@@ -483,16 +483,19 @@
             opacity: 0;
             transition: opacity 0.3s ease;
             backdrop-filter: blur(2px);
+            pointer-events: none; /* Não bloquear cliques quando invisível */
         }
 
         @media (max-width: 968px) {
             .mobile-menu-overlay {
-                display: block;
+                display: none; /* Mantém none - só aparece quando .active */
             }
         }
 
         .mobile-menu-overlay.active {
+            display: block; /* Só aparece quando ativo */
             opacity: 1;
+            pointer-events: auto; /* Permite cliques quando visível */
         }
 
 
@@ -1019,31 +1022,18 @@
                 pointer-events: auto !important; /* Mudado para auto para permitir eventos */
             }
             
-            /* Apenas elementos de informação não clicáveis */
-            .product-card .product-image,
-            .product-card .product-info .product-brand,
-            .product-card .product-info .product-name,
-            .product-card .product-info .product-price,
-            .product-card .product-info .product-price-installment {
-                pointer-events: none !important;
-            }
+            /* REMOVIDO: pointer-events: none estava bloqueando cliques no mobile */
             
             .product-actions {
-                pointer-events: auto !important;
-                z-index: 99999 !important;
-                position: relative !important;
+                z-index: 10;
+                position: relative;
             }
             
-            .product-actions *,
             .btn-view-product,
-            .btn-whatsapp,
-            .btn-view-product *,
-            .btn-whatsapp * {
-                pointer-events: auto !important;
-                z-index: 99999 !important;
-                position: relative !important;
+            .btn-whatsapp {
                 cursor: pointer !important;
                 -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3) !important;
+                touch-action: manipulation; /* Melhora resposta no mobile */
             }
         }
         
@@ -4069,11 +4059,11 @@
                             ou ${installments}x de R$ ${installmentValue} sem juros
                         </div>
                         <div class="product-actions">
-                            <button class="btn-view-product" type="button" data-product-id="${product.id}">
+                            <button class="btn-view-product" type="button" onclick="if(window.viewProduct){window.viewProduct(${product.id});}else{alert('Carregando...');}">
                                 <i class="fas fa-eye"></i>
                                 Ver Produto
                             </button>
-                            <button class="btn-whatsapp" type="button" data-product-id="${product.id}">
+                            <button class="btn-whatsapp" type="button" onclick="if(window.buyOnWhatsApp){window.buyOnWhatsApp(${product.id});}else{alert('Carregando...');}">
                                 <i class="fab fa-whatsapp"></i>
                                 Comprar no WhatsApp
                             </button>
@@ -4081,89 +4071,21 @@
                     </div>
                 `;
                 
-                // Adicionar card ao grid PRIMEIRO
+                // Adicionar card ao grid - SIMPLES E DIRETO
                 newGrid.appendChild(card);
                 
-                // Agora adicionar eventos nos botões (após estar no DOM)
-                const viewBtn = card.querySelector('.btn-view-product');
-                const whatsappBtn = card.querySelector('.btn-whatsapp');
-                
-                // Criar funções wrapper locais para garantir acesso
-                const handleViewProduct = function(e) {
-                    if (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.stopImmediatePropagation();
-                    }
-                    console.log('✅ Click/Touch no botão Ver Produto - ID:', product.id);
-                    const prodId = parseInt(product.id);
-                    if (window.viewProduct) {
-                        window.viewProduct(prodId);
-                    } else if (typeof viewProduct === 'function') {
-                        viewProduct(prodId);
-                    } else {
-                        console.error('❌ viewProduct não está disponível!');
-                        alert('Erro: função não disponível. Recarregue a página.');
-                    }
-                    return false;
-                };
-                
-                const handleWhatsApp = function(e) {
-                    if (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.stopImmediatePropagation();
-                    }
-                    console.log('✅ Click/Touch no botão WhatsApp - ID:', product.id);
-                    const prodId = parseInt(product.id);
-                    if (window.buyOnWhatsApp) {
-                        window.buyOnWhatsApp(prodId);
-                    } else if (typeof buyOnWhatsApp === 'function') {
-                        buyOnWhatsApp(prodId);
-                    } else {
-                        console.error('❌ buyOnWhatsApp não está disponível!');
-                        alert('Erro: função não disponível. Recarregue a página.');
-                    }
-                    return false;
-                };
-                
-                if (viewBtn) {
-                    // Adicionar múltiplos tipos de eventos
-                    viewBtn.onclick = handleViewProduct;
-                    viewBtn.addEventListener('click', handleViewProduct, { capture: true, passive: false });
-                    viewBtn.addEventListener('touchend', handleViewProduct, { capture: true, passive: false });
-                    viewBtn.addEventListener('touchstart', function(e) {
-                        e.stopPropagation();
-                    }, { capture: true });
-                }
-                
-                if (whatsappBtn) {
-                    // Adicionar múltiplos tipos de eventos
-                    whatsappBtn.onclick = handleWhatsApp;
-                    whatsappBtn.addEventListener('click', handleWhatsApp, { capture: true, passive: false });
-                    whatsappBtn.addEventListener('touchend', handleWhatsApp, { capture: true, passive: false });
-                    whatsappBtn.addEventListener('touchstart', function(e) {
-                        e.stopPropagation();
-                    }, { capture: true });
-                }
-                
-                // Adicionar evento de clique no card (exceto nos botões) - DEPOIS dos botões
-                // Usar capture: false para que os botões tenham prioridade
+                // Evento simples no card (exceto nos botões) - apenas para abrir modal
                 card.style.cursor = 'pointer';
                 card.addEventListener('click', function(e) {
-                    // Se clicou em um botão ou dentro de product-actions, não fazer nada
-                    const clickedButton = e.target.closest('.btn-view-product, .btn-whatsapp');
-                    if (clickedButton) {
-                        // Deixar o botão lidar com o evento
-                        return;
-                    }
-                    // Se clicou dentro de product-actions mas não no botão, não fazer nada
-                    if (e.target.closest('.product-actions')) {
+                    // Se clicou em um botão, não fazer nada (deixar onclick inline funcionar)
+                    if (e.target.closest('.btn-view-product, .btn-whatsapp, .product-actions')) {
                         return;
                     }
                     // Caso contrário, abrir modal
-                    showProductModal(product);
-                }, false);
+                    if (window.showProductModal) {
+                        window.showProductModal(product);
+                    }
+                });
                 
                 observer.observe(card);
             });
