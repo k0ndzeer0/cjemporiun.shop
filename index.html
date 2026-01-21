@@ -3608,6 +3608,7 @@
         let filteredProducts = [];
         let cart = JSON.parse(localStorage.getItem('loja_cart') || '[]');
         let currentFilter = 'all';
+        let isRendering = false; // Flag para evitar renderizações simultâneas
         
         // FUNÇÕES GLOBAIS - MESMA LÓGICA DO CARRINHO E MENU
         function viewProduct(productId) {
@@ -4110,6 +4111,7 @@
                     image_url: p.image_url,
                     image_base64: p.image_base64,
                     is_active: p.is_active !== false,
+                    is_offer: p.is_offer || false,
                     fragrance: (() => {
                         // Se fragrance for string JSON, fazer parse
                         if (typeof p.fragrance === 'string' && p.fragrance.startsWith('{')) {
@@ -4130,7 +4132,14 @@
 
         // Load products from Supabase (com fallback para localStorage)
         async function loadProducts() {
+            // Evitar múltiplas chamadas simultâneas
+            if (isRendering) {
+                console.log('⚠️ Carregamento já em andamento, aguardando...');
+                return;
+            }
+            
             try {
+                console.log('🔄 Iniciando carregamento de produtos...');
                 // Tentar carregar do Supabase primeiro
                 const supabaseProducts = await fetchProductsFromSupabase();
                 
@@ -4138,8 +4147,12 @@
                     allProducts = supabaseProducts;
                     filteredProducts = [...allProducts];
                     console.log(`✅ ${allProducts.length} produtos carregados do Supabase`);
-                    renderProducts();
-                    renderExclusiveOffers(); // Carregar ofertas exclusivas
+                    
+                    // Aguardar um pouco para garantir que o DOM está pronto
+                    setTimeout(() => {
+                        renderProducts();
+                        renderExclusiveOffers(); // Carregar ofertas exclusivas
+                    }, 100);
                 } else {
                     // Fallback: tentar localStorage
                     const savedProducts = localStorage.getItem('products');
@@ -4148,8 +4161,11 @@
                         allProducts = allProducts.filter(p => p.is_active !== false);
                         filteredProducts = [...allProducts];
                         console.log(`⚠️ ${allProducts.length} produtos carregados do localStorage (fallback)`);
-                        renderProducts();
-                        renderExclusiveOffers(); // Carregar ofertas exclusivas
+                        
+                        setTimeout(() => {
+                            renderProducts();
+                            renderExclusiveOffers(); // Carregar ofertas exclusivas
+                        }, 100);
                     } else {
                         showEmptyProducts();
                     }
@@ -4163,8 +4179,11 @@
                         allProducts = JSON.parse(savedProducts);
                         allProducts = allProducts.filter(p => p.is_active !== false);
                         filteredProducts = [...allProducts];
-                        renderProducts();
-                        renderExclusiveOffers(); // Carregar ofertas exclusivas
+                        
+                        setTimeout(() => {
+                            renderProducts();
+                            renderExclusiveOffers(); // Carregar ofertas exclusivas
+                        }, 100);
                     } else {
                         showEmptyProducts();
                     }
@@ -4176,8 +4195,19 @@
 
         // Função para renderizar produtos em oferta exclusiva
         function renderExclusiveOffers() {
+            // Só renderizar se houver produtos carregados
+            if (!allProducts || allProducts.length === 0) {
+                console.log('⚠️ Nenhum produto carregado ainda, aguardando...');
+                return;
+            }
+            
             const offersGrid = document.getElementById('exclusive-offers-grid');
-            if (!offersGrid) return;
+            if (!offersGrid) {
+                console.warn('⚠️ exclusive-offers-grid não encontrado');
+                return;
+            }
+            
+            console.log('🎨 renderExclusiveOffers chamado com', allProducts.length, 'produtos');
 
             // Filtrar produtos em oferta
             // Primeiro, verificar se há um campo específico de oferta (is_offer, on_sale, is_promo)
@@ -4292,10 +4322,18 @@
 
         // Render products
         function renderProducts() {
+            // Evitar renderizações simultâneas
+            if (isRendering) {
+                console.log('⚠️ Renderização já em andamento, ignorando...');
+                return;
+            }
+            
+            isRendering = true;
             console.log('🎨 renderProducts chamado');
             const grid = document.getElementById('products-grid');
             if (!grid) {
                 console.error('❌ Grid não encontrado!');
+                isRendering = false;
                 return;
             }
             
@@ -4304,6 +4342,7 @@
             const newGrid = setupProductGridEvents();
             if (!newGrid) {
                 console.error('❌ newGrid não foi criado!');
+                isRendering = false;
                 return;
             }
             
@@ -4311,10 +4350,19 @@
             newGrid.innerHTML = '';
 
             console.log('📦 filteredProducts.length:', filteredProducts.length);
+            console.log('📦 allProducts.length:', allProducts.length);
+            
             if (filteredProducts.length === 0) {
-                console.log('⚠️ Nenhum produto para renderizar');
-                showEmptyProducts();
-                return;
+                // Se filteredProducts está vazio mas allProducts tem itens, resetar filtro
+                if (allProducts && allProducts.length > 0) {
+                    console.log('⚠️ filteredProducts vazio mas há produtos, resetando filtro...');
+                    filteredProducts = [...allProducts];
+                } else {
+                    console.log('⚠️ Nenhum produto para renderizar');
+                    showEmptyProducts();
+                    isRendering = false;
+                    return;
+                }
             }
             
             console.log('🚀 Iniciando renderização de', filteredProducts.length, 'produtos...');
@@ -4379,10 +4427,32 @@
                 
                 observer.observe(card);
             });
+            
+            // Marcar renderização como concluída
+            isRendering = false;
+            console.log('✅ Renderização concluída!');
+            
+            // Verificar se os produtos ainda estão no grid após um pequeno delay
+            setTimeout(() => {
+                const checkGrid = document.getElementById('products-grid');
+                if (checkGrid && checkGrid.children.length === 0 && filteredProducts.length > 0) {
+                    console.warn('⚠️ Grid foi limpo após renderização! Re-renderizando...');
+                    renderProducts();
+                }
+            }, 500);
         }
 
         function showEmptyProducts() {
+            // Só mostrar vazio se realmente não houver produtos
+            if (allProducts && allProducts.length > 0) {
+                console.log('⚠️ showEmptyProducts chamado mas há produtos! Renderizando...');
+                renderProducts();
+                return;
+            }
+            
             const grid = document.getElementById('products-grid');
+            if (!grid) return;
+            
             grid.innerHTML = `
                 <div class="empty-products">
                     <i class="fas fa-box-open"></i>
@@ -4394,19 +4464,30 @@
 
         // Search products
         function searchProducts() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+            const searchInput = document.getElementById('search-input');
+            if (!searchInput) {
+                console.error('❌ search-input não encontrado!');
+                return;
+            }
+            
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            console.log('🔍 Buscando produtos com termo:', searchTerm);
             
             if (!searchTerm) {
-                filterProducts(currentFilter);
+                console.log('⚠️ Termo de busca vazio, mostrando todos os produtos');
+                filteredProducts = [...allProducts];
+                renderProducts();
                 return;
             }
 
             filteredProducts = allProducts.filter(product => {
                 const name = (product.name || '').toLowerCase();
                 const brand = (product.brand || '').toLowerCase();
-                return name.includes(searchTerm) || brand.includes(searchTerm);
+                const matches = name.includes(searchTerm) || brand.includes(searchTerm);
+                return matches;
             });
 
+            console.log(`✅ ${filteredProducts.length} produtos encontrados na busca`);
             renderProducts();
         }
         // Expor imediatamente
@@ -4414,6 +4495,15 @@
 
         // Filter products
         function filterProducts(filter, event) {
+            console.log('🔍 Filtrando produtos:', filter);
+            
+            // Garantir que há produtos carregados
+            if (!allProducts || allProducts.length === 0) {
+                console.warn('⚠️ Nenhum produto carregado ainda, aguardando...');
+                setTimeout(() => filterProducts(filter, event), 500);
+                return;
+            }
+            
             currentFilter = filter;
             
             // Update active nav items - remove active from all nav items first
@@ -4452,18 +4542,26 @@
                     filteredProducts = [...allProducts];
                     break;
                 case 'ofertas':
-                    // Filter products with discounts or special prices
+                    // Filtrar produtos marcados como oferta (is_offer) ou com boa margem
                     filteredProducts = allProducts.filter(p => {
+                        // Primeiro verificar se está marcado como oferta
+                        if (p.is_offer === true) return true;
+                        
+                        // Se não, verificar margem
                         const price = parseFloat(p.price || 0);
                         const cost = p.cost ? parseFloat(p.cost) : null;
-                        // Consider products with good margin as "ofertas" or could add a discount field
-                        return price > 0;
+                        if (cost && price > 0) {
+                            const margin = ((price - cost) / cost) * 100;
+                            return margin > 30;
+                        }
+                        return false;
                     });
                     break;
                 default:
                     filteredProducts = [...allProducts];
             }
 
+            console.log(`✅ ${filteredProducts.length} produtos após filtro`);
             renderProducts();
             
             // Scroll to products section if called from nav
@@ -4902,14 +5000,33 @@
             console.error('❌ searchProducts NÃO definida!');
         }
         
-        try {
-            loadProducts();
-            updateCartUI();
-            console.log('✅ Aplicação inicializada com sucesso');
-        } catch (error) {
-            console.error('❌ ERRO ao inicializar aplicação:', error);
-            console.error('Stack:', error.stack);
-            alert('Erro ao carregar a página. Verifique o console (F12) para mais detalhes.');
+        // Garantir que loadProducts só seja chamado uma vez
+        let productsLoaded = false;
+        
+        function initializeApp() {
+            if (productsLoaded) {
+                console.log('⚠️ Produtos já foram carregados, ignorando...');
+                return;
+            }
+            
+            try {
+                productsLoaded = true;
+                loadProducts();
+                updateCartUI();
+                console.log('✅ Aplicação inicializada com sucesso');
+            } catch (error) {
+                console.error('❌ ERRO ao inicializar aplicação:', error);
+                console.error('Stack:', error.stack);
+                productsLoaded = false; // Permitir tentar novamente em caso de erro
+                alert('Erro ao carregar a página. Verifique o console (F12) para mais detalhes.');
+            }
+        }
+        
+        // Chamar apenas uma vez quando a página estiver totalmente carregada
+        if (document.readyState === 'complete') {
+            initializeApp();
+        } else {
+            window.addEventListener('load', initializeApp);
         }
         
         // Initialize dropdown listeners after DOM is ready
