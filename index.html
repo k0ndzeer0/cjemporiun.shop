@@ -4075,15 +4075,22 @@
         };
 
         // Função para buscar produtos do Supabase
-        async function fetchProductsFromSupabase() {
+        async function fetchProductsFromSupabase(forceRefresh = false) {
             try {
+                // Se forçar refresh, limpar cache
+                if (forceRefresh) {
+                    localStorage.removeItem('products');
+                    console.log('🗑️ Cache limpo, forçando recarregamento do Supabase');
+                }
+                
                 const url = `${SUPABASE_CONFIG.url}/rest/v1/products?is_active=eq.true&order=created_at.desc`;
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
                         'apikey': SUPABASE_CONFIG.anonKey,
                         'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache' // Forçar não usar cache
                     }
                 });
 
@@ -4111,7 +4118,12 @@
                     image_url: p.image_url,
                     image_base64: p.image_base64,
                     is_active: p.is_active !== false,
-                    is_offer: p.is_offer || false,
+                    // Campos de destaque - compatibilidade com sistema antigo e novo
+                    is_offer: p.is_offer || false, // Mantido para compatibilidade
+                    is_highlighted: p.is_highlighted === true || p.is_highlighted === 'true' || p.is_highlighted === 1 || p.is_highlighted === '1',
+                    highlight_type: p.highlight_type || null,
+                    discount_percentage: p.discount_percentage ? parseFloat(p.discount_percentage) : null,
+                    is_novelty: p.is_novelty === true || p.is_novelty === 'true' || p.is_novelty === 1 || p.is_novelty === '1',
                     fragrance: (() => {
                         // Se fragrance for string JSON, fazer parse
                         if (typeof p.fragrance === 'string' && p.fragrance.startsWith('{')) {
@@ -4148,6 +4160,14 @@
                     filteredProducts = [...allProducts];
                     console.log(`✅ ${allProducts.length} produtos carregados do Supabase`);
                     
+                    // Salvar no localStorage como cache (com dados atualizados)
+                    try {
+                        localStorage.setItem('products', JSON.stringify(allProducts));
+                        console.log('💾 Produtos salvos no localStorage (cache atualizado)');
+                    } catch (e) {
+                        console.warn('⚠️ Erro ao salvar no localStorage:', e);
+                    }
+                    
                     // Aguardar um pouco para garantir que o DOM está pronto
                     setTimeout(() => {
                         renderProducts();
@@ -4158,6 +4178,13 @@
                     const savedProducts = localStorage.getItem('products');
                     if (savedProducts) {
                         allProducts = JSON.parse(savedProducts);
+                        // Garantir que valores booleanos sejam tratados corretamente
+                        allProducts = allProducts.map(p => ({
+                            ...p,
+                            is_highlighted: p.is_highlighted === true || p.is_highlighted === 'true' || p.is_highlighted === 1 || p.is_highlighted === '1',
+                            is_offer: p.is_offer === true || p.is_offer === 'true' || p.is_offer === 1 || p.is_offer === '1',
+                            is_novelty: p.is_novelty === true || p.is_novelty === 'true' || p.is_novelty === 1 || p.is_novelty === '1'
+                        }));
                         allProducts = allProducts.filter(p => p.is_active !== false);
                         filteredProducts = [...allProducts];
                         console.log(`⚠️ ${allProducts.length} produtos carregados do localStorage (fallback)`);
@@ -4177,6 +4204,13 @@
                     const savedProducts = localStorage.getItem('products');
                     if (savedProducts) {
                         allProducts = JSON.parse(savedProducts);
+                        // Garantir que valores booleanos sejam tratados corretamente
+                        allProducts = allProducts.map(p => ({
+                            ...p,
+                            is_highlighted: p.is_highlighted === true || p.is_highlighted === 'true' || p.is_highlighted === 1 || p.is_highlighted === '1',
+                            is_offer: p.is_offer === true || p.is_offer === 'true' || p.is_offer === 1 || p.is_offer === '1',
+                            is_novelty: p.is_novelty === true || p.is_novelty === 'true' || p.is_novelty === 1 || p.is_novelty === '1'
+                        }));
                         allProducts = allProducts.filter(p => p.is_active !== false);
                         filteredProducts = [...allProducts];
                         
@@ -4210,42 +4244,45 @@
             console.log('🎨 renderExclusiveOffers chamado com', allProducts.length, 'produtos');
 
             // Filtrar produtos em oferta
-            // Primeiro, verificar se há um campo específico de oferta (is_offer, on_sale, is_promo)
+            // Produtos com desconto E produtos novidade devem aparecer
             let offerProducts = allProducts.filter(product => {
-                // Verificar campos específicos de oferta
-                if (product.is_offer === true || product.on_sale === true || product.is_promo === true) {
+                // Verificar novos campos de destaque (desconto ou novidade)
+                const isHighlighted = product.is_highlighted === true || product.is_highlighted === 'true' || product.is_highlighted === 1 || product.is_highlighted === '1';
+                
+                // Produtos com desconto OU novidade devem aparecer
+                if (isHighlighted && (product.highlight_type === 'discount' || product.highlight_type === 'novelty')) {
+                    if (product.highlight_type === 'discount') {
+                        console.log(`✅ Produto em destaque com desconto: ${product.name} (desconto: ${product.discount_percentage}%)`);
+                    } else if (product.highlight_type === 'novelty') {
+                        console.log(`✨ Produto novidade: ${product.name}`);
+                    }
                     return true;
                 }
+                
+                // Compatibilidade com sistema antigo (apenas se não estiver usando novo sistema)
+                const isOldOffer = product.is_offer === true || product.is_offer === 'true' || product.is_offer === 1 || product.is_offer === '1';
+                if (isOldOffer && !isHighlighted) {
+                    console.log(`⚠️ Produto usando sistema antigo (is_offer): ${product.name}`);
+                    return true;
+                }
+                
+                // Outros campos de oferta (compatibilidade)
+                if (product.on_sale === true || product.is_promo === true) {
+                    return true;
+                }
+                
                 return false;
             });
-
-            // Se não houver produtos com campo específico de oferta, usar lógica alternativa
-            if (offerProducts.length === 0) {
-                // Produtos com boa margem (diferença entre preço e custo) ou preço abaixo da média
-                const avgPrice = allProducts.reduce((sum, p) => sum + parseFloat(p.price || 0), 0) / allProducts.length;
-                
-                offerProducts = allProducts.filter(product => {
-                    const price = parseFloat(product.price || 0);
-                    const cost = product.cost ? parseFloat(product.cost) : null;
-                    
-                    // Produtos com boa margem (margem > 30%) ou preço abaixo da média
-                    if (cost && price > 0) {
-                        const margin = ((price - cost) / cost) * 100;
-                        return margin > 30 || price < avgPrice * 0.8;
-                    }
-                    
-                    // Se não tiver custo, usar produtos com preço abaixo da média
-                    return price > 0 && price < avgPrice * 0.9;
-                });
-
-                // Se ainda não houver produtos, pegar os primeiros 4 produtos
-                if (offerProducts.length === 0) {
-                    offerProducts = allProducts.slice(0, 4);
-                }
+            
+            console.log(`📊 Produtos em oferta encontrados: ${offerProducts.length}`);
+            
+            // NÃO usar lógica de fallback - apenas mostrar produtos que estão explicitamente marcados como oferta
+            // Se não houver produtos em oferta, a seção ficará vazia (comportamento correto)
+            
+            // Limitar a 4 produtos (apenas se houver produtos em oferta)
+            if (offerProducts.length > 4) {
+                offerProducts = offerProducts.slice(0, 4);
             }
-
-            // Limitar a 4 produtos
-            offerProducts = offerProducts.slice(0, 4);
 
             if (offerProducts.length === 0) {
                 offersGrid.innerHTML = '<p style="text-align: center; color: var(--text-gray); grid-column: 1/-1;">Nenhuma oferta disponível no momento.</p>';
@@ -4255,13 +4292,36 @@
             offersGrid.innerHTML = offerProducts.map(product => {
                 const price = parseFloat(product.price || 0);
                 const cost = product.cost ? parseFloat(product.cost) : null;
-                const discount = cost && price > 0 ? Math.round(((price - cost) / price) * 100) : 0;
+                
+                // Determinar tipo de badge: desconto ou novidade
+                let badgeText = '';
+                let discount = 0;
+                const isDiscount = product.highlight_type === 'discount';
+                const isNovelty = product.highlight_type === 'novelty';
+                
+                if (isDiscount && product.discount_percentage) {
+                    // Produto com desconto - mostrar porcentagem
+                    discount = Math.round(parseFloat(product.discount_percentage));
+                    badgeText = `-${discount}%`;
+                } else if (isNovelty) {
+                    // Produto novidade - mostrar "NOVIDADE"
+                    badgeText = 'NOVIDADE';
+                } else if (cost && price > 0) {
+                    // Fallback: calcular desconto baseado na margem (sistema antigo)
+                    discount = Math.round(((price - cost) / price) * 100);
+                    if (discount > 0) {
+                        badgeText = `-${discount}%`;
+                    }
+                }
+                
+                // Calcular preço com desconto (apenas se for desconto)
+                const finalPrice = (isDiscount && discount > 0) ? price * (1 - discount / 100) : price;
                 
                 return `
                     <div class="exclusive-offer-card" style="background: #000000; border-radius: 15px; overflow: hidden; position: relative; border: 2px solid var(--primary-color); transition: transform 0.3s ease, box-shadow 0.3s ease;">
-                        ${discount > 0 ? `
+                        ${badgeText ? `
                             <div style="position: absolute; top: 15px; right: 15px; background: var(--primary-color); color: #000; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; z-index: 2; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);">
-                                -${discount}%
+                                ${badgeText}
                             </div>
                         ` : ''}
                         <div class="product-image" style="width: 100%; height: 250px; background: #000000; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
@@ -4280,9 +4340,18 @@
                             </h3>
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px;">
                                 <div>
-                                    <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">
-                                        R$ ${price.toFixed(2).replace('.', ',')}
-                                    </div>
+                                    ${(isDiscount && discount > 0) ? `
+                                        <div style="font-size: 14px; color: var(--text-gray); text-decoration: line-through; margin-bottom: 4px;">
+                                            R$ ${price.toFixed(2).replace('.', ',')}
+                                        </div>
+                                        <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">
+                                            R$ ${finalPrice.toFixed(2).replace('.', ',')}
+                                        </div>
+                                    ` : `
+                                        <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">
+                                            R$ ${price.toFixed(2).replace('.', ',')}
+                                        </div>
+                                    `}
                                 </div>
                                 <button class="btn-primary" onclick="viewProduct(${product.id})" style="padding: 12px 24px; font-size: 14px; border-radius: 8px;">
                                     <i class="fas fa-eye"></i> Ver
@@ -4542,10 +4611,18 @@
                     filteredProducts = [...allProducts];
                     break;
                 case 'ofertas':
-                    // Filtrar produtos marcados como oferta (is_offer) ou com boa margem
+                    // Filtrar produtos marcados como oferta (usando novos campos ou antigos para compatibilidade)
                     filteredProducts = allProducts.filter(p => {
-                        // Primeiro verificar se está marcado como oferta
-                        if (p.is_offer === true) return true;
+                        // Verificar novos campos de destaque com desconto
+                        const isHighlighted = p.is_highlighted === true || p.is_highlighted === 'true' || p.is_highlighted === 1 || p.is_highlighted === '1';
+                        if (isHighlighted && p.highlight_type === 'discount') {
+                            return true;
+                        }
+                        
+                        // Compatibilidade com sistema antigo
+                        if (p.is_offer === true || p.is_offer === 'true' || p.is_offer === 1 || p.is_offer === '1') {
+                            return true;
+                        }
                         
                         // Se não, verificar margem
                         const price = parseFloat(p.price || 0);
