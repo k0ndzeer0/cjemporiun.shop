@@ -1522,7 +1522,10 @@
         }
         
         .btn-view-product:hover {
-            background: rgba(212, 175, 55, 0.2);
+            background: var(--primary-color);
+            color: var(--bg-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
         }
         
         .btn-whatsapp {
@@ -3216,27 +3219,170 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Newsletter Modal */
+        .newsletter-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 5000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .newsletter-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .newsletter-content {
+            background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+            border: 1px solid var(--primary-color);
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.15);
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+
+        .newsletter-modal.active .newsletter-content {
+            transform: scale(1);
+        }
+        
+        .newsletter-decoration {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            background: var(--gradient-gold);
+            filter: blur(60px);
+            opacity: 0.5;
+            border-radius: 50%;
+        }
+
+        .newsletter-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-light);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .newsletter-close:hover {
+            background: var(--primary-color);
+            color: var(--bg-dark);
+            transform: rotate(90deg);
+        }
+
+        .newsletter-body {
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .newsletter-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--primary-color);
+            font-size: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .newsletter-title {
+            font-size: 26px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .newsletter-text {
+            color: var(--text-gray);
+            margin-bottom: 25px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .newsletter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .newsletter-input {
+            padding: 14px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .newsletter-input:focus {
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+
+        .newsletter-submit {
+            padding: 14px 20px;
+            border-radius: 50px;
+            border: none;
+            background: var(--gradient-gold);
+            color: var(--bg-dark);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .newsletter-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+        }
+        
+        .newsletter-footer {
+            margin-top: 15px;
+            font-size: 12px;
+            color: var(--text-gray);
+            opacity: 0.6;
+        }
+
     </style>
 </head>
 <body>
-    <!-- SCRIPT URGENTE - Garantir que botões funcionem -->
-    <script>
-        // Criar funções placeholder que serão substituídas depois
-        window.searchProducts = function() {
-            console.log('⚠️ searchProducts chamada mas ainda não definida!');
-            alert('Aguarde, carregando...');
-        };
-        window.filterProducts = function(filter, event) {
-            console.log('⚠️ filterProducts chamada mas ainda não definida!', filter);
-            alert('Aguarde, carregando...');
-        };
-        window.filterByCategory = function(category, event) {
-            console.log('⚠️ filterByCategory chamada mas ainda não definida!', category);
-            alert('Aguarde, carregando...');
-        };
-        console.log('✅ Funções placeholder criadas');
-    </script>
-    
     <!-- Header -->
     <header class="header" id="header">
         <div class="header-content">
@@ -3246,7 +3392,7 @@
             </button>
             
             <!-- Logo: Desktop (esquerda) | Mobile (centro) -->
-            <a href="#hero" class="logo" onclick="closeMobileMenu();">
+            <a href="#" class="logo" onclick="closeMobileMenu();">
                 <img src="https://zpqtcrfygjtjtacufgbv.supabase.co/storage/v1/object/public/logos/LOGO%20SEM%20FUNDO.png" alt="CJ Empórium Logo">
             </a>
             
@@ -3261,7 +3407,7 @@
                 <div class="mobile-menu-logo">
                     <img src="https://zpqtcrfygjtjtacufgbv.supabase.co/storage/v1/object/public/logos/LOGO%20SEM%20FUNDO.png" alt="CJ Empórium Logo">
                 </div>
-                <a href="#hero" class="nav-item active">Início</a>
+                <a href="#" class="nav-item active">Início</a>
                 <div class="nav-item-dropdown">
                     <div class="dropdown-toggle" id="dropdown-toggle">
                         Perfumes
@@ -3298,26 +3444,8 @@
     <!-- Mobile Menu Overlay -->
     <div class="mobile-menu-overlay" id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
 
-    <!-- Hero Section -->
-    <section class="hero" id="hero">
-        <div class="hero-content">
-            <div class="hero-badge">
-                <i class="fas fa-star"></i> Fragrâncias Autênticas Importadas
-            </div>
-            <h1>Descubra o Luxo dos Perfumes Árabes</h1>
-            <p class="hero-subtitle">
-                Fragrâncias exclusivas importadas diretamente do Oriente Médio. 
-                Qualidade premium que você só encontra aqui.
-            </p>
-            <p class="hero-description">
-                Transforme cada momento em uma experiência única com perfumes que duram o dia inteiro. 
-                Descubra fragrâncias raras e autênticas que vão além do comum.
-            </p>
-        </div>
-    </section>
-
     <!-- Search Section -->
-    <section class="search-section-wrapper" style="padding: 20px 20px; background: rgba(10, 10, 10, 0.95); position: relative;">
+    <section class="search-section-wrapper" style="padding: 120px 20px 20px 20px; background: rgba(10, 10, 10, 0.95); position: relative;">
         <div class="section-container">
             <div class="products-header" style="margin-bottom: 15px;">
                 <h2 class="section-title">Nossos Produtos Exclusivos</h2>
@@ -3325,7 +3453,6 @@
             <div class="search-section">
                 <div class="search-box">
                     <input type="text" class="search-input" id="search-input" placeholder="Buscar por nome ou marca...">
-                    <button class="btn-primary" id="search-btn" onclick="console.log('🔥 ONCLICK EXECUTADO!'); if(window.searchProducts){console.log('Função encontrada!'); window.searchProducts();}else{console.error('Função NÃO encontrada!'); alert('Função não encontrada!');}" style="padding: 15px 30px;">
                     <button class="btn-primary" id="search-btn" onclick="searchProducts()" style="padding: 15px 30px;">
                         <i class="fas fa-search"></i>
                     </button>
@@ -3573,6 +3700,68 @@
         </div>
     </section>
 
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faq" style="padding: 80px 20px; background: rgba(10, 10, 10, 0.95); position: relative;">
+        <div class="section-container">
+            <h2 class="section-title">Perguntas Frequentes</h2>
+            <p class="section-subtitle">Tire suas dúvidas sobre nossos produtos e serviços.</p>
+            
+            <div class="faq-grid" style="max-width: 800px; margin: 40px auto 0;">
+                <!-- FAQ Item 1 -->
+                <div class="faq-item" style="margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; background: var(--bg-dark);">
+                    <div class="faq-question" onclick="toggleFaq(this)" style="padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: var(--text-light); transition: color 0.3s;">
+                        <span>Os perfumes são originais?</span>
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color); transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: rgba(255,255,255,0.02);">
+                        <div style="padding: 0 20px 20px; color: var(--text-gray); line-height: 1.6;">
+                            Sim, todos os nossos perfumes são 100% originais e importados diretamente dos fabricantes ou distribuidores autorizados no Oriente Médio. Garantimos a autenticidade de cada frasco.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="faq-item" style="margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; background: var(--bg-dark);">
+                    <div class="faq-question" onclick="toggleFaq(this)" style="padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: var(--text-light); transition: color 0.3s;">
+                        <span>Qual o prazo de entrega?</span>
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color); transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: rgba(255,255,255,0.02);">
+                        <div style="padding: 0 20px 20px; color: var(--text-gray); line-height: 1.6;">
+                            O prazo de entrega varia de acordo com a sua região. Geralmente, para o Sudeste é de 3 a 5 dias úteis, e para outras regiões de 5 a 10 dias úteis após a confirmação do pagamento.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="faq-item" style="margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; background: var(--bg-dark);">
+                    <div class="faq-question" onclick="toggleFaq(this)" style="padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: var(--text-light); transition: color 0.3s;">
+                        <span>Quais as formas de pagamento?</span>
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color); transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: rgba(255,255,255,0.02);">
+                        <div style="padding: 0 20px 20px; color: var(--text-gray); line-height: 1.6;">
+                            Aceitamos pagamentos via PIX (com desconto), cartão de crédito em até 10x sem juros e boleto bancário.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="faq-item" style="margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; background: var(--bg-dark);">
+                    <div class="faq-question" onclick="toggleFaq(this)" style="padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: var(--text-light); transition: color 0.3s;">
+                        <span>Posso trocar se não gostar?</span>
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color); transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: rgba(255,255,255,0.02);">
+                        <div style="padding: 0 20px 20px; color: var(--text-gray); line-height: 1.6;">
+                            Sim, aceitamos trocas e devoluções em até 7 dias após o recebimento, desde que o produto esteja lacrado e em sua embalagem original, conforme o Código de Defesa do Consumidor.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer / Contato -->
     <footer class="footer" id="contato">
         <div class="footer-content">
@@ -3604,6 +3793,14 @@
                     <p class="footer-text">Garça, São Paulo</p>
                 </div>
             </div>
+            
+            <div style="margin-bottom: 40px;">
+                <a href="https://www.instagram.com/cj.emporium/" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; color: var(--text-light); text-decoration: none; font-size: 18px; padding: 10px 25px; border: 1px solid var(--border-color); border-radius: 50px; transition: all 0.3s; background: rgba(255,255,255,0.05);" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.color='var(--primary-color)'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.color='var(--text-light)'; this.style.transform='translateY(0)'">
+                    <i class="fab fa-instagram" style="font-size: 24px;"></i>
+                    Siga-nos no Instagram
+                </a>
+            </div>
+
             <p class="footer-text">
                 <i class="fas fa-shield-alt"></i> Compra 100% Segura | 
                 <i class="fas fa-truck"></i> Frete Grátis acima de R$ 299 | 
@@ -3646,6 +3843,26 @@
             </button>
             <div class="product-modal-body" id="product-modal-body">
                 <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Newsletter Modal -->
+    <div class="newsletter-modal" id="newsletter-modal">
+        <div class="newsletter-content">
+            <div class="newsletter-decoration"></div>
+            <button class="newsletter-close" onclick="closeNewsletter()">&times;</button>
+            <div class="newsletter-body">
+                <div class="newsletter-icon">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <h2 class="newsletter-title">Ganhe 5% OFF</h2>
+                <p class="newsletter-text">Inscreva-se na nossa lista VIP e receba um cupom de desconto exclusivo para sua primeira compra no pix, além de novidades e ofertas especiais.</p>
+                <form class="newsletter-form" onsubmit="submitNewsletter(event)">
+                    <input type="text" class="newsletter-input" placeholder="Seu Whatsapp aqui" required>
+                    <button type="submit" class="newsletter-submit">QUERO MEU DESCONTO</button>
+                </form>
+                <p class="newsletter-footer">Respeitamos sua privacidade. Cancele quando quiser.</p>
             </div>
         </div>
     </div>
@@ -3715,7 +3932,7 @@
                 
                 const price = parseFloat(product.price || 0);
                 const discountPrice = (price * 0.95).toFixed(2).replace('.', ',');
-                const installments = 10;
+                const installments = 5;
                 const installmentValue = (price / installments).toFixed(2).replace('.', ',');
                 
                 let message = '🛍️ *CJ EMPÓRIUM*\n\n';
@@ -3726,7 +3943,7 @@
                 }
                 message += `\n`;
                 message += `💰 *Preço:* R$ ${price.toFixed(2).replace('.', ',')}\n`;
-                message += `💳 R$ ${discountPrice} à vista com desconto\n`;
+                message += `💳 R$ ${discountPrice} no PIX (5% OFF)\n`;
                 message += `📅 ou ${installments}x de R$ ${installmentValue} sem juros\n\n`;
                 message += `Gostaria de mais informações sobre este produto! 😊`;
                 
@@ -4513,10 +4730,10 @@
                 const card = document.createElement('div');
                 card.className = 'product-card fade-in';
                 
-                // Calcular parcelamento (10x sem juros)
-                const installments = 10;
+                // Calcular parcelamento (5x sem juros)
+                const installments = 5;
                 const installmentValue = (price / installments).toFixed(2).replace('.', ',');
-                const discountPrice = (price * 0.95).toFixed(2).replace('.', ','); // 5% desconto à vista
+                const discountPrice = (price * 0.95).toFixed(2).replace('.', ','); // 5% desconto no PIX
                 
                 card.innerHTML = `
                     <div class="product-image">
@@ -4527,7 +4744,7 @@
                         <div class="product-name">${name}</div>
                         <div class="product-price">R$ ${price.toFixed(2).replace('.', ',')}</div>
                         <div class="product-price-installment">
-                            R$ ${discountPrice} à vista com desconto<br>
+                            R$ ${discountPrice} no PIX (5% OFF)<br>
                             ou ${installments}x de R$ ${installmentValue} sem juros
                         </div>
                         <div class="product-actions">
@@ -4599,17 +4816,11 @@
         // Search products
         function searchProducts() {
             const searchInput = document.getElementById('search-input');
-            if (!searchInput) {
-                console.error('❌ search-input não encontrado!');
-                return;
-            }
             if (!searchInput) return;
             
             const searchTerm = searchInput.value.toLowerCase().trim();
-            console.log('🔍 Buscando produtos com termo:', searchTerm);
             
             if (!searchTerm) {
-                console.log('⚠️ Termo de busca vazio, mostrando todos os produtos');
                 filteredProducts = [...allProducts];
                 renderProducts();
                 return;
@@ -4618,8 +4829,6 @@
             filteredProducts = allProducts.filter(product => {
                 const name = (product.name || '').toLowerCase();
                 const brand = (product.brand || '').toLowerCase();
-                const matches = name.includes(searchTerm) || brand.includes(searchTerm);
-                return matches;
                 
                 // Busca também na fragrância/descrição
                 let fragrance = '';
@@ -4643,7 +4852,6 @@
                        fragrance.includes(searchTerm);
             });
 
-            console.log(`✅ ${filteredProducts.length} produtos encontrados na busca`);
             renderProducts();
             
             // Rolar até os resultados
@@ -4939,6 +5147,103 @@
             }, 3000);
         }
 
+        // FAQ Toggle Function
+        function toggleFaq(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('i');
+            
+            // Close other open FAQs
+            document.querySelectorAll('.faq-answer').forEach(item => {
+                if (item !== answer && item.style.maxHeight) {
+                    item.style.maxHeight = null;
+                    item.previousElementSibling.querySelector('i').style.transform = 'rotate(0deg)';
+                    item.previousElementSibling.style.color = 'var(--text-light)';
+                }
+            });
+            
+            if (answer.style.maxHeight) {
+                answer.style.maxHeight = null;
+                icon.style.transform = 'rotate(0deg)';
+                element.style.color = 'var(--text-light)';
+            } else {
+                answer.style.maxHeight = answer.scrollHeight + "px";
+                icon.style.transform = 'rotate(180deg)';
+                element.style.color = 'var(--primary-color)';
+            }
+        }
+
+        // Newsletter Functions
+        function showNewsletter() {
+            // Verificar se já foi mostrado nesta sessão ou se usuário já se inscreveu
+            if (!sessionStorage.getItem('newsletterShown') && !localStorage.getItem('newsletterSubscribed')) {
+                const modal = document.getElementById('newsletter-modal');
+                if (modal) {
+                    modal.classList.add('active');
+                    sessionStorage.setItem('newsletterShown', 'true');
+                }
+            }
+        }
+
+        function closeNewsletter() {
+            const modal = document.getElementById('newsletter-modal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Função para salvar lead no Supabase
+        async function saveLeadToSupabase(whatsapp) {
+            if (!whatsapp) return;
+            
+            try {
+                const url = `${SUPABASE_CONFIG.url}/rest/v1/leads`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_CONFIG.anonKey,
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        whatsapp: whatsapp,
+                        source: 'newsletter_modal'
+                    })
+                });
+                
+                if (response.ok) console.log('✅ Lead salvo no Supabase');
+                else console.error('Erro ao salvar lead:', await response.text());
+            } catch (err) {
+                console.error('Erro de conexão:', err);
+            }
+        }
+
+        function submitNewsletter(event) {
+            event.preventDefault();
+            const input = event.target.querySelector('input');
+            const value = input ? input.value : '';
+            
+            console.log('📧 Newsletter subscription:', value);
+            
+            // Salvar lead no Supabase
+            saveLeadToSupabase(value);
+            
+            localStorage.setItem('newsletterSubscribed', 'true');
+            closeNewsletter();
+            
+            // Simular processamento e mostrar cupom
+            setTimeout(() => {
+                showToast('Inscrição realizada! Use o cupom PIX5', 'success');
+                // Opcional: Copiar cupom para área de transferência
+                navigator.clipboard.writeText('PIX5').then(() => {
+                    console.log('Cupom copiado');
+                }).catch(err => console.error('Erro ao copiar', err));
+            }, 500);
+        }
+
+        // Mostrar newsletter após 8 segundos
+        setTimeout(showNewsletter, 8000);
+
         // Funções já estão expostas no window no início do script
         
         // Product Modal Functions
@@ -5148,6 +5453,9 @@
         window.toggleMobileMenu = toggleMobileMenu;
         window.showProductModal = showProductModal;
         window.showToast = showToast;
+        window.toggleFaq = toggleFaq;
+        window.closeNewsletter = closeNewsletter;
+        window.submitNewsletter = submitNewsletter;
 
         // Debug: Verificar se todas as funções estão disponíveis
         console.log('🚀 Inicializando aplicação...');
@@ -5384,248 +5692,5 @@
         }, 1000);
     </script>
     
-    <!-- SCRIPT ULTRA SIMPLES - Configura todos os botões -->
-    <script>
-        console.log('🚀 SCRIPT SIMPLES INICIADO');
-        
-        function configurarBotoes() {
-            console.log('🔧 Iniciando configuração de botões...');
-            console.log('Verificando funções disponíveis:', {
-                searchProducts: typeof window.searchProducts,
-                filterProducts: typeof window.filterProducts,
-                filterByCategory: typeof window.filterByCategory
-            });
-            
-            // Botão de busca - MÚLTIPLAS FORMAS DE GARANTIR QUE FUNCIONE
-            var btn = document.getElementById('search-btn');
-            if (btn) {
-                console.log('✅ Botão de busca encontrado, configurando...');
-                
-                // Remover qualquer listener anterior
-                var newBtn = btn.cloneNode(true);
-                btn.parentNode.replaceChild(newBtn, btn);
-                btn = newBtn;
-                
-                // Método 1: onclick direto
-                btn.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    console.log('🔥🔥🔥 BOTÃO DE BUSCA CLICADO (onclick)!');
-                    try {
-                        window.searchProducts();
-                    } catch(err) {
-                        console.error('Erro:', err);
-                        alert('Erro: ' + err.message);
-                    }
-                    return false;
-                };
-                
-                // Método 2: addEventListener (backup)
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    console.log('🔥🔥🔥 BOTÃO DE BUSCA CLICADO (addEventListener)!');
-                    try {
-                        window.searchProducts();
-                    } catch(err) {
-                        console.error('Erro:', err);
-                    }
-                    return false;
-                }, true);
-                
-                // Método 3: touchstart para mobile
-                btn.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('🔥🔥🔥 BOTÃO DE BUSCA TOUCH (mobile)!');
-                    try {
-                        window.searchProducts();
-                    } catch(err) {
-                        console.error('Erro:', err);
-                    }
-                    return false;
-                }, true);
-                
-                console.log('✅ Botão de busca configurado com 3 métodos!');
-            } else {
-                console.error('❌ Botão de busca NÃO encontrado!');
-            }
-            
-            // Botões de filtro - MÚLTIPLOS MÉTODOS
-            var filtros = document.querySelectorAll('.nav-item[data-filter]');
-            console.log('Encontrados', filtros.length, 'botões de filtro');
-            filtros.forEach(function(b) {
-                var filter = b.getAttribute('data-filter');
-                
-                // onclick direto
-                b.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    console.log('🔥🔥🔥 FILTRO CLICADO (onclick):', filter);
-                    try {
-                        window.filterProducts(filter, e);
-                    } catch(err) {
-                        console.error('Erro:', err);
-                    }
-                    return false;
-                };
-                
-                // addEventListener backup
-                b.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('🔥🔥🔥 FILTRO CLICADO (listener):', filter);
-                    try {
-                        window.filterProducts(filter, e);
-                    } catch(err) {
-                        console.error('Erro:', err);
-                    }
-                }, true);
-            });
-            
-            // Botões de categoria - MÚLTIPLOS MÉTODOS
-            var cats = document.querySelectorAll('.dropdown-item[data-category]');
-            console.log('Encontrados', cats.length, 'botões de categoria');
-            cats.forEach(function(b) {
-                var category = b.getAttribute('data-category');
-                
-                // onclick direto
-                b.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    console.log('🔥🔥🔥 CATEGORIA CLICADA (onclick):', category);
-                    try {
-                        window.filterByCategory(category, e);
-                    } catch(err) {
-                        console.error('Erro:', err);
-                    }
-                    return false;
-                };
-                
-                // addEventListener backup
-                b.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('🔥🔥🔥 CATEGORIA CLICADA (listener):', category);
-                    try {
-                        window.filterByCategory(category, e);
-                    } catch(err) {
-                        console.error('Erro:', err);
-                    }
-                }, true);
-            });
-            
-            console.log('✅✅✅ CONFIGURAÇÃO CONCLUÍDA!');
-            
-            // TESTE FINAL - Verificar se os botões estão realmente configurados
-            setTimeout(function() {
-                var testBtn = document.getElementById('search-btn');
-                if (testBtn) {
-                    console.log('🧪 TESTE: Botão existe:', testBtn);
-                    console.log('🧪 TESTE: onclick definido?', typeof testBtn.onclick);
-                    
-                    // Teste manual
-                    console.log('🧪 TESTE: Tentando clicar programaticamente...');
-                    try {
-                        testBtn.click();
-                        console.log('✅ TESTE: click() executado');
-                    } catch(err) {
-                        console.error('❌ TESTE: Erro ao clicar:', err);
-                    }
-                }
-            }, 2000);
-        }
-        
-        // Tentar várias vezes até funcionar
-        if (document.readyState === 'complete') {
-            setTimeout(configurarBotoes, 100);
-            setTimeout(configurarBotoes, 500);
-            setTimeout(configurarBotoes, 1000);
-        } else {
-            window.addEventListener('load', function() {
-                setTimeout(configurarBotoes, 100);
-                setTimeout(configurarBotoes, 500);
-            });
-            document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(configurarBotoes, 100);
-                setTimeout(configurarBotoes, 500);
-            });
-        }
-        
-        // REMOVIDO - Usando apenas onclick inline que é mais confiável
-        
-        console.log('✅ Interceptador global de cliques configurado!');
-        
-        // Verificar se os botões existem no DOM
-        setTimeout(function() {
-            console.log('🔍 VERIFICAÇÃO FINAL DOS BOTÕES:');
-            var searchBtn = document.getElementById('search-btn');
-            console.log('Botão de busca existe?', !!searchBtn);
-            if (searchBtn) {
-                console.log('Botão de busca:', searchBtn.outerHTML.substring(0, 100));
-            }
-            
-            var filterBtns = document.querySelectorAll('.nav-item[data-filter]');
-            console.log('Botões de filtro encontrados:', filterBtns.length);
-            filterBtns.forEach(function(b, i) {
-                console.log('Filtro', i + ':', b.getAttribute('data-filter'), b.textContent.trim());
-            });
-            
-            var catBtns = document.querySelectorAll('.dropdown-item[data-category]');
-            console.log('Botões de categoria encontrados:', catBtns.length);
-            catBtns.forEach(function(b, i) {
-                console.log('Categoria', i + ':', b.getAttribute('data-category'));
-            });
-        }, 3000);
-    </script>
-    
-    <!-- TESTE FINAL ULTRA SIMPLES -->
-    <script>
-        // Aguardar tudo carregar
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                console.log('🧪🧪🧪 TESTE FINAL ULTRA SIMPLES 🧪🧪🧪');
-                
-                // Teste 1: Verificar se funções existem
-                console.log('Teste 1 - Funções:', {
-                    searchProducts: typeof window.searchProducts,
-                    filterProducts: typeof window.filterProducts,
-                    filterByCategory: typeof window.filterByCategory
-                });
-                
-                // Teste 2: Verificar se botão existe
-                var btn = document.getElementById('search-btn');
-                console.log('Teste 2 - Botão existe?', !!btn);
-                
-                if (btn) {
-                    // Teste 3: Adicionar listener MUITO SIMPLES
-                    btn.addEventListener('click', function() {
-                        console.log('🎉🎉🎉 CLIQUE FUNCIONOU! 🎉🎉🎉');
-                        alert('CLIQUE FUNCIONOU!');
-                        if (window.searchProducts) {
-                            window.searchProducts();
-                        }
-                    });
-                    
-                    // Teste 4: Tentar clicar programaticamente
-                    console.log('Teste 4 - Clicando programaticamente...');
-                    btn.click();
-                }
-                
-                // Teste 5: Verificar onclick inline
-                if (btn && btn.onclick) {
-                    console.log('Teste 5 - onclick existe:', typeof btn.onclick);
-                } else {
-                    console.log('Teste 5 - onclick NÃO existe!');
-                }
-                
-                console.log('✅✅✅ TESTE FINAL CONCLUÍDO ✅✅✅');
-            }, 2000);
-        });
-    </script>
 </body>
 </html>
