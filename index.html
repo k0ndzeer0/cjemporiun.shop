@@ -1522,10 +1522,7 @@
         }
         
         .btn-view-product:hover {
-            background: var(--primary-color);
-            color: var(--bg-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            background: rgba(212, 175, 55, 0.2);
         }
         
         .btn-whatsapp {
@@ -3380,6 +3377,156 @@
             opacity: 0.6;
         }
 
+        /* Privacy Policy Modal */
+        .privacy-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(5px);
+            z-index: 6000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .privacy-modal.active {
+            display: flex;
+        }
+
+        .privacy-content {
+            background: #1a1a1a;
+            border: 1px solid var(--primary-color);
+            border-radius: 15px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            color: var(--text-gray);
+        }
+
+        .privacy-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .privacy-close:hover {
+            color: var(--primary-color);
+        }
+
+        .privacy-title {
+            color: var(--primary-color);
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .privacy-text h3 {
+            color: var(--text-light);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        /* Cookie Consent */
+        .cookie-consent {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            border-top: 1px solid var(--primary-color);
+            padding: 20px;
+            z-index: 9000;
+            display: none;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .cookie-consent.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cookie-content {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cookie-text {
+            color: var(--text-gray);
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .cookie-text a {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .cookie-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .cookie-btn-accept {
+            background: var(--gradient-gold);
+            color: var(--bg-dark);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cookie-btn-accept:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .cookie-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .cookie-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .privacy-text p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -3808,6 +3955,8 @@
             </p>
             <p class="footer-text" style="font-size: 14px; opacity: 0.7; margin-top: 20px;">
                 © 2026 CJ Emporium. Todos os direitos reservados.
+                <br><a href="#" onclick="openPrivacyPolicy(); return false;" style="color: var(--text-gray); text-decoration: underline; font-size: 12px; margin-top: 5px; display: inline-block; margin-right: 15px;">Política de Privacidade</a>
+                <a href="#" onclick="openTermsOfUse(); return false;" style="color: var(--text-gray); text-decoration: underline; font-size: 12px; margin-top: 5px; display: inline-block;">Termos de Uso</a>
             </p>
         </div>
     </footer>
@@ -3867,6 +4016,81 @@
         </div>
     </div>
 
+    <!-- Privacy Policy Modal -->
+    <div class="privacy-modal" id="privacy-modal">
+        <div class="privacy-content">
+            <button class="privacy-close" onclick="closePrivacyPolicy()">&times;</button>
+            <h2 class="privacy-title">Política de Privacidade</h2>
+            <div class="privacy-text">
+                <p>Na CJ Empórium, respeitamos sua privacidade e garantimos a segurança de seus dados.</p>
+                
+                <h3>1. Coleta de Informações</h3>
+                <p>Coletamos apenas as informações necessárias para processar seu pedido e melhorar sua experiência de compra, como nome, e-mail, telefone e endereço de entrega.</p>
+                
+                <h3>2. Uso das Informações</h3>
+                <p>Seus dados são utilizados exclusivamente para:</p>
+                <ul>
+                    <li>Processamento e entrega de pedidos;</li>
+                    <li>Comunicação sobre o status da compra;</li>
+                    <li>Envio de novidades e promoções (apenas se autorizado).</li>
+                </ul>
+                
+                <h3>3. Segurança</h3>
+                <p>Utilizamos tecnologia de ponta para proteger suas informações. Seus dados de pagamento são processados em ambiente seguro e criptografado.</p>
+                
+                <h3>4. Compartilhamento</h3>
+                <p>Não vendemos nem compartilhamos seus dados pessoais com terceiros, exceto quando necessário para a entrega do pedido (transportadoras).</p>
+                
+                <h3>5. Cookies</h3>
+                <p>Utilizamos cookies para personalizar sua navegação e oferecer uma experiência mais relevante.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Use Modal -->
+    <div class="privacy-modal" id="terms-modal">
+        <div class="privacy-content">
+            <button class="privacy-close" onclick="closeTermsOfUse()">&times;</button>
+            <h2 class="privacy-title">Termos de Uso</h2>
+            <div class="privacy-text">
+                <p>Bem-vindo à CJ Empórium. Ao acessar e utilizar nosso site, você concorda com os seguintes termos e condições:</p>
+                
+                <h3>1. Aceitação dos Termos</h3>
+                <p>Ao utilizar nossos serviços, você concorda em cumprir estes termos. Se não concordar, por favor, não utilize o site.</p>
+                
+                <h3>2. Produtos e Serviços</h3>
+                <p>Nos esforçamos para exibir com precisão as cores e imagens de nossos produtos. No entanto, não podemos garantir que a exibição em seu monitor seja exata. Todos os produtos estão sujeitos à disponibilidade.</p>
+                
+                <h3>3. Preços e Pagamentos</h3>
+                <p>Os preços estão sujeitos a alterações sem aviso prévio. Aceitamos diversas formas de pagamento, processadas de forma segura. Reservamo-nos o direito de recusar qualquer pedido.</p>
+                
+                <h3>4. Entrega</h3>
+                <p>Os prazos de entrega são estimativas e podem variar. Não nos responsabilizamos por atrasos causados por terceiros (transportadoras), mas daremos todo o suporte necessário.</p>
+                
+                <h3>5. Propriedade Intelectual</h3>
+                <p>Todo o conteúdo deste site (textos, imagens, logos) é propriedade da CJ Empórium e está protegido por leis de direitos autorais.</p>
+                
+                <h3>6. Alterações</h3>
+                <p>Podemos atualizar estes termos a qualquer momento. O uso continuado do site após as alterações constitui aceitação dos novos termos.</p>
+                
+                <h3>7. Contato</h3>
+                <p>Para dúvidas sobre os termos, entre em contato pelo nosso WhatsApp ou e-mail.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cookie Consent -->
+    <div class="cookie-consent" id="cookie-consent">
+        <div class="cookie-content">
+            <div class="cookie-text">
+                <p>Utilizamos cookies para melhorar sua experiência em nosso site. Ao continuar navegando, você concorda com nossa <a href="#" onclick="openPrivacyPolicy(); return false;">Política de Privacidade</a>.</p>
+            </div>
+            <div class="cookie-buttons">
+                <button class="cookie-btn-accept" onclick="acceptCookies()">Aceitar e Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
 
@@ -3876,6 +4100,7 @@
     </a>
 
     <script>
+        (function() { // Início do encapsulamento seguro (IIFE)
         // Data
         let allProducts = [];
         let filteredProducts = [];
@@ -4427,10 +4652,10 @@
             try {
                 console.log('🔄 Iniciando carregamento de produtos...');
                 // Tentar carregar do Supabase primeiro
-                const supabaseProducts = await fetchProductsFromSupabase();
+                const fetchedProducts = await fetchProductsFromSupabase();
                 
-                if (supabaseProducts && supabaseProducts.length > 0) {
-                    allProducts = supabaseProducts;
+                if (fetchedProducts && fetchedProducts.length > 0) {
+                    allProducts = fetchedProducts;
                     
                     // Garantir ordenação correta no frontend também
                     allProducts.sort((a, b) => {
@@ -5244,6 +5469,51 @@
         // Mostrar newsletter após 8 segundos
         setTimeout(showNewsletter, 8000);
 
+        // Privacy Policy Functions
+        function openPrivacyPolicy() {
+            document.getElementById('privacy-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePrivacyPolicy() {
+            document.getElementById('privacy-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Terms of Use Functions
+        function openTermsOfUse() {
+            document.getElementById('terms-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTermsOfUse() {
+            document.getElementById('terms-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Cookie Consent Logic
+        function checkCookieConsent() {
+            if (!localStorage.getItem('cookieConsent')) {
+                setTimeout(() => {
+                    const banner = document.getElementById('cookie-consent');
+                    if (banner) banner.classList.add('active');
+                }, 2000);
+            }
+        }
+
+        function acceptCookies() {
+            localStorage.setItem('cookieConsent', 'true');
+            const banner = document.getElementById('cookie-consent');
+            if (banner) banner.classList.remove('active');
+        }
+
+        // Initialize Cookie Consent
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkCookieConsent);
+        } else {
+            checkCookieConsent();
+        }
+
         // Funções já estão expostas no window no início do script
         
         // Product Modal Functions
@@ -5456,6 +5726,11 @@
         window.toggleFaq = toggleFaq;
         window.closeNewsletter = closeNewsletter;
         window.submitNewsletter = submitNewsletter;
+        window.openPrivacyPolicy = openPrivacyPolicy;
+        window.closePrivacyPolicy = closePrivacyPolicy;
+        window.openTermsOfUse = openTermsOfUse;
+        window.closeTermsOfUse = closeTermsOfUse;
+        window.acceptCookies = acceptCookies;
 
         // Debug: Verificar se todas as funções estão disponíveis
         console.log('🚀 Inicializando aplicação...');
@@ -5690,6 +5965,7 @@
                 }
             });
         }, 1000);
+        })(); // Fim do encapsulamento seguro (IIFE)
     </script>
     
 </body>
